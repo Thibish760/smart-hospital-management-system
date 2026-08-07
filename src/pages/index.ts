@@ -1,0 +1,11 @@
+export { Dashboard } from './Dashboard';
+export { Patients } from './Patients';
+export { Doctors } from './Doctors';
+export { Appointments } from './Appointments';
+export { MedicalRecords } from './MedicalRecords';
+export { Billing } from './Billing';
+export { Reports } from './Reports';
+export { Settings } from './Settings';
+export { Departments } from './Departments';
+export { NotificationsPage } from './NotificationsPage';
+export { Login } from './Login';
