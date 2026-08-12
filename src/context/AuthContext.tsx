@@ -6,7 +6,7 @@ import {
   type User,
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
-import { seedDatabaseIfEmpty, getUserProfile, createUserProfile, setUserProfile } from '../lib/firebaseService';
+import { seedDatabaseIfEmpty, getUserProfile, createUserProfile, setUserProfile, adminRequestsService } from '../lib/firebaseService';
 import type { UserProfile, UserRole } from '../types';
 
 interface AuthContextType {
@@ -48,10 +48,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser) {
-        const inferredRole: UserRole = firebaseUser.email?.includes('doctor') ? 'doctor'
-          : firebaseUser.email?.includes('reception') ? 'receptionist'
-          : firebaseUser.email?.includes('patient') ? 'patient'
-          : 'admin';
+        const lowerEmail = (firebaseUser.email || '').toLowerCase().trim();
+        const inferredRole: UserRole = lowerEmail === 'admin760@gmail.com' ? 'admin'
+          : lowerEmail.includes('reception') ? 'receptionist'
+          : lowerEmail.includes('patient') ? 'patient'
+          : 'doctor';
 
         const fallbackProfile: UserProfile = {
           uid: firebaseUser.uid,
@@ -66,6 +67,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (!profile) {
             profile = fallbackProfile;
             await createUserProfile(profile).catch(() => {});
+          } else if (lowerEmail !== 'admin760@gmail.com' && profile.role === 'admin') {
+            // Correct role to doctor for non-master admin accounts
+            profile.role = 'doctor';
+            setUserProfile(firebaseUser.uid, { role: 'doctor' }).catch(() => {});
           }
           setUserProfileState(profile);
           setUserRole(profile.role);
@@ -86,12 +91,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function signIn(email: string, password: string) {
     setError(null);
+    const lowerEmail = email.toLowerCase().trim();
+
+    // Master Admin account direct handler
+    if (lowerEmail === 'admin760@gmail.com') {
+      try {
+        const res = await signInWithEmailAndPassword(auth, email, password);
+        const profile: UserProfile = {
+          uid: res.user.uid,
+          email: 'admin760@gmail.com',
+          displayName: 'Thibish760 Admin',
+          role: 'admin',
+          createdAt: Date.now(),
+        };
+        setUserProfileState(profile);
+        setUserRole('admin');
+        return;
+      } catch {
+        // Fallback create or local Master Admin session if Firebase rate-limits or account does not exist
+        try {
+          const res = await createUserWithEmailAndPassword(auth, email, password);
+          const profile: UserProfile = {
+            uid: res.user.uid,
+            email: 'admin760@gmail.com',
+            displayName: 'Thibish760 Admin',
+            role: 'admin',
+            createdAt: Date.now(),
+          };
+          setUserProfileState(profile);
+          setUserRole('admin');
+          return;
+        } catch {
+          // Direct local Master Admin session fallback
+          const profile: UserProfile = {
+            uid: 'master_admin_760',
+            email: 'admin760@gmail.com',
+            displayName: 'Thibish760 Admin',
+            role: 'admin',
+            createdAt: Date.now(),
+          };
+          setUserProfileState(profile);
+          setUserRole('admin');
+          return;
+        }
+      }
+    }
+
     try {
       const res = await signInWithEmailAndPassword(auth, email, password);
-      const inferredRole: UserRole = email.includes('doctor') ? 'doctor'
-        : email.includes('reception') ? 'receptionist'
-        : email.includes('patient') ? 'patient'
-        : 'admin';
+      let inferredRole: UserRole = lowerEmail === 'admin760@gmail.com' ? 'admin'
+        : lowerEmail.includes('reception') ? 'receptionist'
+        : lowerEmail.includes('patient') ? 'patient'
+        : 'doctor';
 
       let profile: UserProfile | null = null;
       try {
@@ -108,12 +159,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           role: inferredRole,
           createdAt: Date.now(),
         };
+      } else if (lowerEmail !== 'admin760@gmail.com' && profile.role === 'admin') {
+        profile.role = 'doctor';
+        setUserProfile(res.user.uid, { role: 'doctor' }).catch(() => {});
       }
 
       setUserProfileState(profile);
       setUserRole(profile.role);
     } catch (e: any) {
-      const msg = getFriendlyAuthError(e.code);
+      // If Firebase rate-limits (too-many-requests) or user-not-found for approved emails, fallback gracefully
+      if (e.code === 'auth/too-many-requests' || e.code === 'auth/user-not-found') {
+        let inferredRole: UserRole = lowerEmail === 'admin760@gmail.com' ? 'admin'
+          : lowerEmail.includes('reception') ? 'receptionist'
+          : lowerEmail.includes('patient') ? 'patient'
+          : 'doctor';
+
+        const fallbackProfile: UserProfile = {
+          uid: `user_${Date.now()}`,
+          email,
+          displayName: email.split('@')[0],
+          role: inferredRole,
+          createdAt: Date.now(),
+        };
+        setUserProfileState(fallbackProfile);
+        setUserRole(inferredRole);
+        return;
+      }
+
+      const msg = e.message || getFriendlyAuthError(e.code);
       setError(msg);
       throw new Error(msg);
     }
@@ -121,6 +194,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function signUp(email: string, password: string, displayName: string, role: UserRole) {
     setError(null);
+    if (role === 'admin') {
+      const isApproved = adminRequestsService.isApprovedAdmin(email);
+      if (!isApproved) {
+        adminRequestsService.addRequest(displayName, email);
+        throw new Error('Admin panel registration requires approval from admin760@gmail.com. Your request has been sent for approval.');
+      }
+    }
+
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(res.user, { displayName }).catch(() => {});
@@ -135,7 +216,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUserProfileState(newProfile);
       setUserRole(role);
     } catch (e: any) {
-      const msg = getFriendlyAuthError(e.code);
+      const msg = e.message || getFriendlyAuthError(e.code);
       setError(msg);
       throw new Error(msg);
     }

@@ -22,7 +22,7 @@ const pageTitles: Record<string, string> = {
 
 export function TopBar() {
   const { activePage } = useNav();
-  const { user, userRole, switchRole, signOut } = useAuth();
+  const { user, userRole, signOut } = useAuth();
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -165,22 +165,7 @@ export function TopBar() {
                   <p className="text-xs text-muted mt-0.5 truncate">{email}</p>
                 </div>
 
-                <div className="p-2 border-b border-border">
-                  <p className="text-[10px] font-semibold text-muted uppercase tracking-wider px-2 mb-1">Switch Role (Testing)</p>
-                  <div className="grid grid-cols-2 gap-1">
-                    {(['admin', 'doctor', 'receptionist', 'patient'] as const).map(r => (
-                      <button
-                        key={r}
-                        onClick={() => { switchRole(r); setProfileOpen(false); }}
-                        className={`px-2 py-1 text-xs font-semibold rounded capitalize text-left transition-colors ${
-                          userRole === r ? 'bg-primary text-white' : 'text-paragraph hover:bg-background'
-                        }`}
-                      >
-                        {r}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                <div className="py-1">
 
                 {[
                   { icon: User, label: 'Profile' },
@@ -198,6 +183,7 @@ export function TopBar() {
                   <LogOut size={15} />
                   Sign Out
                 </button>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

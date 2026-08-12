@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Clock, MapPin, Plus, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, MapPin, Plus, Loader2, Download, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { appointmentsService } from '../lib/firebaseService';
 import { Badge } from '../components/ui/Badge';
 import { Avatar } from '../components/ui/Avatar';
 import { Modal } from '../components/ui/Modal';
-import { formatCurrency, capitalizeStatus } from '../lib/utils';
+import { ScheduleModal } from '../components/ui/ScheduleModal';
+import { exportToExcel } from '../lib/exportUtils';
+import { formatCurrency, capitalizeStatus, getCurrentDateShort } from '../lib/utils';
 import type { Appointment, AppointmentStatus } from '../types';
 
 type ViewMode = 'timeline' | 'week' | 'list';
@@ -18,13 +20,30 @@ const STATUS_COLORS: Record<AppointmentStatus, string> = {
   'in-progress': 'border-l-primary bg-primary-light/30',
 };
 const HOURS = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
-const DAYS = ['Mon Aug 5', 'Tue Aug 6', 'Wed Aug 7', 'Thu Aug 8', 'Fri Aug 9'];
+
+function getWeekDays(): string[] {
+  const now = new Date();
+  const currentDay = now.getDay();
+  const diffToMon = currentDay === 0 ? -6 : 1 - currentDay;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + diffToMon);
+
+  const days: string[] = [];
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    days.push(d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }));
+  }
+  return days;
+}
 
 export function Appointments() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<ViewMode>('list');
   const [statusFilter, setStatusFilter] = useState<AppointmentStatus | 'all'>('all');
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<Appointment | null>(null);
 
   useEffect(() => {
     const unsub = appointmentsService.subscribe((data) => {
@@ -33,6 +52,32 @@ export function Appointments() {
     }, () => setLoading(false));
     return unsub;
   }, []);
+
+  const handleExport = () => {
+    const data = appointments.map(a => ({
+      ID: a.id,
+      'Patient Name': a.patientName,
+      'Doctor Name': a.doctorName,
+      Department: a.department,
+      Date: a.date,
+      Time: a.time,
+      Type: a.type,
+      Room: a.room || 'N/A',
+      Status: a.status,
+      'Fee (₹)': a.fee,
+      Notes: a.notes || '',
+    }));
+    exportToExcel('appointments_export', data);
+  };
+
+  const handleDeleteAppointment = async (id: string) => {
+    try {
+      await appointmentsService.delete(id);
+      setDeleteConfirm(null);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const filtered = statusFilter === 'all' ? appointments : appointments.filter(a => a.status === statusFilter);
 
@@ -46,6 +91,10 @@ export function Appointments() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <button className="btn-secondary" onClick={handleExport}>
+            <Download size={15} />
+            Export Excel
+          </button>
           <div className="flex bg-background border border-border rounded-input p-0.5">
             {(['list', 'timeline', 'week'] as ViewMode[]).map(v => (
               <button key={v} onClick={() => setView(v)}
@@ -54,7 +103,7 @@ export function Appointments() {
                 }`}>{v}</button>
             ))}
           </div>
-          <button className="btn-primary"><Plus size={15} />Schedule</button>
+          <button className="btn-primary" onClick={() => setScheduleOpen(true)}><Plus size={15} />Schedule</button>
         </div>
       </div>
 
@@ -96,12 +145,13 @@ export function Appointments() {
                       <th className="text-left px-4 py-3.5 table-header hidden lg:table-cell">Room</th>
                       <th className="text-left px-4 py-3.5 table-header">Status</th>
                       <th className="text-left px-4 py-3.5 table-header hidden xl:table-cell">Fee</th>
+                      <th className="text-left px-4 py-3.5 table-header">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border-light">
                     {filtered.map((apt, i) => (
                       <motion.tr key={apt.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                        transition={{ delay: i * 0.03 }} className="hover:bg-background/60 transition-colors">
+                        transition={{ delay: i * 0.03 }} className="hover:bg-background/60 transition-colors group">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <Avatar name={apt.patientName} size="sm" />
@@ -129,10 +179,19 @@ export function Appointments() {
                         <td className="px-4 py-4 hidden xl:table-cell">
                           <span className="text-sm font-semibold text-heading">{formatCurrency(apt.fee)}</span>
                         </td>
+                        <td className="px-4 py-4">
+                          <button
+                            className="p-1.5 text-muted hover:text-danger hover:bg-danger-light rounded-lg transition-colors"
+                            title="Cancel / Delete Appointment"
+                            onClick={() => setDeleteConfirm(apt)}
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </td>
                       </motion.tr>
                     ))}
                     {filtered.length === 0 && (
-                      <tr><td colSpan={7} className="text-center py-12 text-sm text-muted">No appointments found</td></tr>
+                      <tr><td colSpan={8} className="text-center py-12 text-sm text-muted">No appointments found</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -144,7 +203,7 @@ export function Appointments() {
           {view === 'timeline' && (
             <div className="card p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="section-title">Today — August 5, 2024</h2>
+                <h2 className="section-title">Today — {getCurrentDateShort()}</h2>
                 <div className="flex items-center gap-2">
                   <button className="btn-icon"><ChevronLeft size={14} /></button>
                   <button className="btn-icon"><ChevronRight size={14} /></button>
@@ -181,14 +240,14 @@ export function Appointments() {
           {view === 'week' && (
             <div className="card p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="section-title">Week of August 5, 2024</h2>
+                <h2 className="section-title">Week of {getCurrentDateShort()}</h2>
                 <div className="flex items-center gap-2">
                   <button className="btn-icon"><ChevronLeft size={14} /></button>
                   <button className="btn-icon"><ChevronRight size={14} /></button>
                 </div>
               </div>
               <div className="grid grid-cols-5 gap-3">
-                {DAYS.map((day, di) => {
+                {getWeekDays().map((day, di) => {
                   const dayAppts = appointments.filter((_, i) => i % 5 === di).slice(0, 3);
                   return (
                     <div key={day} className={`rounded-xl border p-3 ${di === 0 ? 'border-primary bg-primary-50' : 'border-border'}`}>
@@ -227,6 +286,34 @@ export function Appointments() {
           </div>
         ))}
       </div>
+
+      <ScheduleModal open={scheduleOpen} onClose={() => setScheduleOpen(false)} />
+
+      {/* Delete Appointment Modal */}
+      <Modal
+        open={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        title="Delete / Cancel Appointment"
+        subtitle="Confirm deletion of appointment record"
+        size="sm"
+        footer={
+          <>
+            <button className="btn-secondary" onClick={() => setDeleteConfirm(null)}>
+              Cancel
+            </button>
+            <button
+              className="px-4 py-2 text-sm font-medium rounded-input bg-danger text-white hover:bg-danger-dark transition-colors"
+              onClick={() => deleteConfirm && handleDeleteAppointment(deleteConfirm.id)}
+            >
+              Delete Appointment
+            </button>
+          </>
+        }
+      >
+        <p className="text-sm text-paragraph">
+          Are you sure you want to permanently delete appointment for <strong>{deleteConfirm?.patientName}</strong> with <strong>{deleteConfirm?.doctorName}</strong> on {deleteConfirm?.date}?
+        </p>
+      </Modal>
     </div>
   );
 }

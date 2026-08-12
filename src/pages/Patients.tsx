@@ -6,6 +6,8 @@ import { Badge } from '../components/ui/Badge';
 import { Avatar } from '../components/ui/Avatar';
 import { Drawer } from '../components/ui/Drawer';
 import { Modal } from '../components/ui/Modal';
+import { ScheduleModal } from '../components/ui/ScheduleModal';
+import { exportToExcel } from '../lib/exportUtils';
 import { formatDate, capitalizeStatus } from '../lib/utils';
 import type { Patient } from '../types';
 
@@ -34,6 +36,8 @@ export function Patients() {
   const [saving, setSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<Patient | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [schedulePatientId, setSchedulePatientId] = useState<string | undefined>(undefined);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
 
   useEffect(() => {
     const unsub = patientsService.subscribe((data) => {
@@ -42,6 +46,24 @@ export function Patients() {
     }, () => setLoading(false));
     return unsub;
   }, []);
+
+  const handleExport = () => {
+    const data = patients.map(p => ({
+      MRN: p.mrn,
+      Name: p.name,
+      Age: p.age,
+      Gender: p.gender,
+      'Blood Group': p.bloodGroup,
+      Phone: p.phone,
+      Email: p.email,
+      Department: p.department,
+      'Primary Doctor': p.primaryDoctor,
+      Status: p.status,
+      'Registered Date': p.registeredDate,
+      'Last Visit': p.lastVisit,
+    }));
+    exportToExcel('patients_directory', data);
+  };
 
   const filtered = patients.filter(p => {
     const matchSearch = p.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -112,7 +134,7 @@ export function Patients() {
           </p>
         </div>
         <div className="flex gap-3">
-          <button className="btn-secondary">
+          <button className="btn-secondary" onClick={handleExport}>
             <Download size={15} />
             Export
           </button>
@@ -244,8 +266,26 @@ export function Patients() {
       {/* Patient Detail Drawer */}
       <Drawer open={!!selected} onClose={() => setSelected(null)}
         title={selected?.name} subtitle={`${selected?.mrn} · ${selected?.department}`} width="lg">
-        {selected && <PatientDrawerContent patient={selected} activeTab={drawerTab} setTab={setDrawerTab} />}
+        {selected && (
+          <PatientDrawerContent
+            patient={selected}
+            activeTab={drawerTab}
+            setTab={setDrawerTab}
+            onBook={() => {
+              const pid = selected.id;
+              setSelected(null);
+              setSchedulePatientId(pid);
+              setScheduleOpen(true);
+            }}
+          />
+        )}
       </Drawer>
+
+      <ScheduleModal
+        open={scheduleOpen}
+        onClose={() => setScheduleOpen(false)}
+        initialPatientId={schedulePatientId}
+      />
 
       {/* Add Patient Modal */}
       <Modal open={addOpen} onClose={() => { setAddOpen(false); setForm(emptyForm); }}
@@ -348,7 +388,7 @@ export function Patients() {
 }
 
 // ─── Patient Drawer ────────────────────────────────────────────────────────────
-function PatientDrawerContent({ patient, activeTab, setTab }: { patient: Patient; activeTab: string; setTab: (t: string) => void }) {
+function PatientDrawerContent({ patient, activeTab, setTab, onBook }: { patient: Patient; activeTab: string; setTab: (t: string) => void; onBook?: () => void }) {
   const tabs = ['profile', 'history', 'prescriptions', 'billing'];
   return (
     <div className="flex flex-col h-full">
@@ -422,7 +462,7 @@ function PatientDrawerContent({ patient, activeTab, setTab }: { patient: Patient
       </div>
       <div className="px-6 py-4 border-t border-border flex gap-3 flex-shrink-0">
         <button className="btn-secondary flex-1">Edit Patient</button>
-        <button className="btn-primary flex-1">Book Appointment</button>
+        <button className="btn-primary flex-1" onClick={onBook}>Book Appointment</button>
       </div>
     </div>
   );

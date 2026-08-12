@@ -1,27 +1,118 @@
 import { useState, useEffect } from 'react';
-import { Download, Plus, Search, FileText, CheckCircle, AlertCircle, Clock, Loader2 } from 'lucide-react';
+import { Download, Plus, Search, FileText, CheckCircle, AlertCircle, Clock, Loader2, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { invoicesService } from '../lib/firebaseService';
+import { invoicesService, patientsService } from '../lib/firebaseService';
 import { Badge } from '../components/ui/Badge';
 import { Avatar } from '../components/ui/Avatar';
-import { formatDate, formatCurrency, capitalizeStatus } from '../lib/utils';
-import type { Invoice } from '../types';
+import { Modal } from '../components/ui/Modal';
+import { exportToExcel } from '../lib/exportUtils';
+import { formatDate, formatCurrency, capitalizeStatus, getTodayISODate } from '../lib/utils';
+import type { Invoice, Patient, PaymentStatus } from '../types';
 
 const PAYMENT_STATUSES = ['all', 'paid', 'pending', 'overdue', 'partial'];
 
+const emptyForm = {
+  patientId: 'p1',
+  patientName: 'Eleanor Whitfield',
+  date: getTodayISODate(),
+  dueDate: getTodayISODate(),
+  subtotal: '1500',
+  tax: '100',
+  discount: '0',
+  status: 'pending' as PaymentStatus,
+  paymentMethod: 'card' as Invoice['paymentMethod'],
+};
+
 export function Billing() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
+  const [addOpen, setAddOpen] = useState(false);
+  const [form, setForm] = useState(emptyForm);
+  const [deleteConfirm, setDeleteConfirm] = useState<Invoice | null>(null);
+
   useEffect(() => {
-    const unsub = invoicesService.subscribe((data) => {
+    const unsubInv = invoicesService.subscribe((data) => {
       setInvoices(data);
       setLoading(false);
     }, () => setLoading(false));
-    return unsub;
+    const unsubPat = patientsService.subscribe(setPatients);
+    return () => { unsubInv(); unsubPat(); };
   }, []);
+
+  const handleExport = () => {
+    const data = invoices.map(i => ({
+      'Invoice #': i.invoiceNumber,
+      'Patient Name': i.patientName,
+      'Issue Date': i.date,
+      'Due Date': i.dueDate,
+      Status: i.status,
+      Subtotal: i.subtotal,
+      Tax: i.tax,
+      Discount: i.discount,
+      Total: i.total,
+      'Payment Method': i.paymentMethod || 'N/A',
+    }));
+    exportToExcel('billing_invoices', data);
+  };
+
+  const handlePatientChange = (patId: string) => {
+    const pat = patients.find(p => p.id === patId);
+    if (pat) {
+      setForm({ ...form, patientId: pat.id, patientName: pat.name });
+    }
+  };
+
+  const handleAddInvoice = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+
+    const sub = Number(form.subtotal) || 1500;
+    const taxVal = Number(form.tax) || 0;
+    const discVal = Number(form.discount) || 0;
+    const tot = Math.max(0, sub + taxVal - discVal);
+
+    const invNum = `INV-2026-0${Math.floor(850 + Math.random() * 100)}`;
+
+    try {
+      await invoicesService.add({
+        invoiceNumber: invNum,
+        patientId: form.patientId || 'p1',
+        patientName: form.patientName || 'Eleanor Whitfield',
+        date: form.date || '2026-08-05',
+        dueDate: form.dueDate || '2026-09-05',
+        services: [
+          { description: 'Medical Consultation & Diagnostics', quantity: 1, unitPrice: sub, total: sub }
+        ],
+        subtotal: sub,
+        tax: taxVal,
+        discount: discVal,
+        total: tot,
+        status: form.status,
+        paymentMethod: form.paymentMethod,
+      });
+
+      setSaving(false);
+      setAddOpen(false);
+      setForm(emptyForm);
+    } catch (err) {
+      console.error(err);
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await invoicesService.delete(id);
+      setDeleteConfirm(null);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const filtered = invoices.filter(inv => {
     const matchSearch = inv.patientName?.toLowerCase().includes(search.toLowerCase()) ||
@@ -45,8 +136,8 @@ export function Billing() {
           </p>
         </div>
         <div className="flex gap-3">
-          <button className="btn-secondary"><Download size={15} />Export</button>
-          <button className="btn-primary"><Plus size={15} />New Invoice</button>
+          <button className="btn-secondary" onClick={handleExport}><Download size={15} />Export</button>
+          <button className="btn-primary" onClick={() => setAddOpen(true)}><Plus size={15} />New Invoice</button>
         </div>
       </div>
 
@@ -132,7 +223,7 @@ export function Billing() {
                       </span>
                     </td>
                     <td className="px-4 py-4 hidden lg:table-cell">
-                      <span className="text-sm text-muted">{inv.services?.length || 0} items</span>
+                      <span className="text-sm text-muted">{inv.services?.length || 1} items</span>
                     </td>
                     <td className="px-4 py-4">
                       <p className="text-sm font-bold text-heading">{formatCurrency(inv.total)}</p>
@@ -140,9 +231,14 @@ export function Billing() {
                     </td>
                     <td className="px-4 py-4"><Badge status={inv.status} /></td>
                     <td className="px-4 py-4">
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="btn-icon w-7 h-7" title="Download PDF"><Download size={13} /></button>
-                        <button className="btn-icon w-7 h-7" title="View"><FileText size={13} /></button>
+                      <div className="flex items-center gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
+                        <button
+                          className="p-1.5 text-muted hover:text-danger hover:bg-danger-light rounded-lg transition-colors"
+                          title="Delete Invoice"
+                          onClick={() => setDeleteConfirm(inv)}
+                        >
+                          <Trash2 size={15} />
+                        </button>
                       </div>
                     </td>
                   </motion.tr>
@@ -171,6 +267,167 @@ export function Billing() {
           </div>
         )}
       </div>
+
+      {/* New Invoice Modal */}
+      <Modal
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        title="Create New Invoice"
+        subtitle="Generate a billing invoice for patient consultation and medical services"
+        size="lg"
+        footer={
+          <>
+            <button className="btn-secondary" onClick={() => setAddOpen(false)} type="button">
+              Cancel
+            </button>
+            <button className="btn-primary" form="add-invoice-form" type="submit" disabled={saving}>
+              {saving ? (
+                <>
+                  <Loader2 size={14} className="animate-spin" /> Generating…
+                </>
+              ) : (
+                'Create Invoice'
+              )}
+            </button>
+          </>
+        }
+      >
+        <form id="add-invoice-form" onSubmit={handleAddInvoice} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5 sm:col-span-2">
+              <label className="text-sm font-semibold text-heading">Patient *</label>
+              <select
+                className="input-base"
+                value={form.patientId}
+                onChange={e => handlePatientChange(e.target.value)}
+              >
+                {patients.map(p => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} ({p.mrn} — {p.department})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-heading">Issue Date *</label>
+              <input
+                type="date"
+                className="input-base"
+                required
+                value={form.date}
+                onChange={e => setForm({ ...form, date: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-heading">Due Date *</label>
+              <input
+                type="date"
+                className="input-base"
+                required
+                value={form.dueDate}
+                onChange={e => setForm({ ...form, dueDate: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-heading">Payment Status</label>
+              <select
+                className="input-base capitalize"
+                value={form.status}
+                onChange={e => setForm({ ...form, status: e.target.value as PaymentStatus })}
+              >
+                <option value="pending">Pending</option>
+                <option value="paid">Paid</option>
+                <option value="partial">Partial</option>
+                <option value="overdue">Overdue</option>
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-heading">Payment Method</label>
+              <select
+                className="input-base capitalize"
+                value={form.paymentMethod}
+                onChange={e => setForm({ ...form, paymentMethod: e.target.value as Invoice['paymentMethod'] })}
+              >
+                <option value="card">Card</option>
+                <option value="cash">Cash</option>
+                <option value="insurance">Insurance</option>
+                <option value="bank-transfer">Bank Transfer</option>
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-heading">Subtotal (₹) *</label>
+              <input
+                type="number"
+                min="0"
+                className="input-base"
+                required
+                value={form.subtotal}
+                onChange={e => setForm({ ...form, subtotal: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-heading">Tax (₹)</label>
+              <input
+                type="number"
+                min="0"
+                className="input-base"
+                value={form.tax}
+                onChange={e => setForm({ ...form, tax: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-heading">Discount (₹)</label>
+              <input
+                type="number"
+                min="0"
+                className="input-base"
+                value={form.discount}
+                onChange={e => setForm({ ...form, discount: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-heading">Calculated Total (₹)</label>
+              <div className="px-3.5 py-2 rounded-input border border-border bg-background/60 font-bold text-base text-primary">
+                {formatCurrency(Math.max(0, (Number(form.subtotal) || 0) + (Number(form.tax) || 0) - (Number(form.discount) || 0)))}
+              </div>
+            </div>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Delete Confirm Modal */}
+      <Modal
+        open={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        title="Delete Invoice"
+        subtitle="Confirm deletion of billing record"
+        size="sm"
+        footer={
+          <>
+            <button className="btn-secondary" onClick={() => setDeleteConfirm(null)}>
+              Cancel
+            </button>
+            <button
+              className="px-4 py-2 text-sm font-medium rounded-input bg-danger text-white hover:bg-danger-dark transition-colors"
+              onClick={() => deleteConfirm && handleDelete(deleteConfirm.id)}
+            >
+              Delete Invoice
+            </button>
+          </>
+        }
+      >
+        <p className="text-sm text-paragraph">
+          Are you sure you want to permanently delete invoice <strong>{deleteConfirm?.invoiceNumber}</strong> for <strong>{deleteConfirm?.patientName}</strong>?
+        </p>
+      </Modal>
     </div>
   );
 }

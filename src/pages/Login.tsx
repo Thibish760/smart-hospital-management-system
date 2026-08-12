@@ -9,17 +9,10 @@ import { useAuth } from '../context/AuthContext';
 import type { UserRole } from '../types';
 
 /* ── Role definitions ── */
-const ROLES = [
-  {
-    role: 'admin' as UserRole,
-    label: 'Administrator',
-    desc: 'Full system access',
-    icon: ShieldCheck,
-    color: '#005EB8',
-  },
+const DEMO_ROLES = [
   {
     role: 'doctor' as UserRole,
-    label: 'Physician',
+    label: 'Doctor',
     desc: 'Patient & clinical records',
     icon: Stethoscope,
     color: '#0D7A3E',
@@ -48,12 +41,14 @@ const STATS = [
 ];
 
 export function Login() {
-  const { signIn, signUp, resetPassword, switchRole } = useAuth();
+  const { signIn, signUp, resetPassword } = useAuth();
   const [mode, setMode] = useState<'signin' | 'signup' | 'reset'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [selectedRole, setSelectedRole] = useState<UserRole>('admin');
+  const [selectedRole, setSelectedRole] = useState<UserRole>('doctor');
+  const [accessCode, setAccessCode] = useState('');
+  const [showAccessCode, setShowAccessCode] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -68,6 +63,19 @@ export function Login() {
         await resetPassword(email);
         setResetSent(true);
       } else if (mode === 'signup') {
+        if (selectedRole === 'doctor') {
+          if (accessCode.trim() !== 'mediflow760') {
+            setError("Invalid Doctor Access Code! Please enter the authorized Doctor registration code.");
+            setLoading(false);
+            return;
+          }
+        } else if (selectedRole === 'receptionist') {
+          if (accessCode.trim() !== 'mediflow123') {
+            setError("Invalid Receptionist Access Code! Please enter the authorized Receptionist registration code.");
+            setLoading(false);
+            return;
+          }
+        }
         await signUp(email, password, displayName || email.split('@')[0], selectedRole);
       } else {
         await signIn(email, password);
@@ -76,28 +84,6 @@ export function Login() {
       setError(err.message || 'Authentication failed. Please check your credentials.');
     } finally {
       setLoading(false);
-    }
-  }
-
-  const [demoLoading, setDemoLoading] = useState<UserRole | null>(null);
-
-  async function handleDemoRoleLogin(role: UserRole) {
-    const demoEmail = `${role}@mediflow.com`;
-    const demoPassword = 'MediFlow2024!';
-    setDemoLoading(role);
-    setError('');
-    try {
-      // Try to sign in first; if the account doesn't exist, create it
-      try {
-        await signIn(demoEmail, demoPassword);
-      } catch {
-        await signUp(demoEmail, demoPassword, role.charAt(0).toUpperCase() + role.slice(1), role);
-      }
-      switchRole(role);
-    } catch (err: any) {
-      setError(`Demo login failed: ${err.message || 'Please try again.'}`);
-    } finally {
-      setDemoLoading(null);
     }
   }
 
@@ -111,7 +97,7 @@ export function Login() {
         <header className="lp-header">
           <div className="lp-logo-mark">
             <img
-              src="/ChatGPT Image Aug 5, 2026, 10_56_46 AM.png"
+              src="/logo.png"
               alt="MediFlow Logo"
               className="lp-logo-img"
             />
@@ -154,33 +140,6 @@ export function Login() {
 
         {/* Bottom: Demo access */}
         <footer className="lp-footer-section">
-          <p className="lp-demo-heading">Quick Demo Access</p>
-          <div className="lp-demo-list">
-            {ROLES.map(({ role, label, icon: Icon, color }) => (
-              <button
-                key={role}
-                type="button"
-                onClick={() => handleDemoRoleLogin(role)}
-                disabled={demoLoading !== null}
-                className="lp-demo-item"
-              >
-                {demoLoading === role ? (
-                  <Loader2 size={13} className="lp-spinner" style={{ color }} />
-                ) : (
-                  <span className="lp-demo-icon-wrap" style={{ background: `${color}22`, color }}>
-                    <Icon size={13} />
-                  </span>
-                )}
-                <span className="lp-demo-label">{label}</span>
-                {demoLoading === role ? (
-                  <span style={{ fontSize: '0.62rem', color: '#6B7280' }}>Signing in…</span>
-                ) : (
-                  <ArrowRight size={12} className="lp-demo-arrow" />
-                )}
-              </button>
-            ))}
-          </div>
-
           <p className="lp-version">
             v2.4.0 &nbsp;·&nbsp; 256-bit TLS &nbsp;·&nbsp; JWT Secured
           </p>
@@ -334,7 +293,7 @@ export function Login() {
               <div className="lp-field">
                 <label className="lp-label">Select Role</label>
                 <div className="lp-role-grid">
-                  {ROLES.map(({ role, label, desc, icon: Icon, color }) => {
+                  {DEMO_ROLES.map(({ role, label, desc, icon: Icon, color }) => {
                     const active = selectedRole === role;
                     return (
                       <button
@@ -369,6 +328,61 @@ export function Login() {
                     );
                   })}
                 </div>
+              </div>
+            )}
+
+            {/* Access Code verification for Doctor & Receptionist */}
+            {mode === 'signup' && selectedRole === 'doctor' && (
+              <div className="lp-field">
+                <label className="lp-label" htmlFor="lp-access-code">Doctor Access Code *</label>
+                <div className="lp-input-wrap">
+                  <ShieldCheck size={14} className="lp-input-icon text-primary" />
+                  <input
+                    id="lp-access-code"
+                    type={showAccessCode ? 'text' : 'password'}
+                    value={accessCode}
+                    onChange={e => setAccessCode(e.target.value)}
+                    placeholder="Enter secret doctor access code"
+                    required
+                    className="lp-input lp-input--pw font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowAccessCode(v => !v)}
+                    className="lp-eye-btn"
+                    aria-label={showAccessCode ? 'Hide access code' : 'Show access code'}
+                  >
+                    {showAccessCode ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </div>
+                <p className="text-[11px] text-muted mt-1">Authorized Doctor verification code required to register</p>
+              </div>
+            )}
+
+            {mode === 'signup' && selectedRole === 'receptionist' && (
+              <div className="lp-field">
+                <label className="lp-label" htmlFor="lp-access-code">Receptionist Access Code *</label>
+                <div className="lp-input-wrap">
+                  <ShieldCheck size={14} className="lp-input-icon text-primary" />
+                  <input
+                    id="lp-access-code"
+                    type={showAccessCode ? 'text' : 'password'}
+                    value={accessCode}
+                    onChange={e => setAccessCode(e.target.value)}
+                    placeholder="Enter secret receptionist access code"
+                    required
+                    className="lp-input lp-input--pw font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowAccessCode(v => !v)}
+                    className="lp-eye-btn"
+                    aria-label={showAccessCode ? 'Hide access code' : 'Show access code'}
+                  >
+                    {showAccessCode ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </div>
+                <p className="text-[11px] text-muted mt-1">Authorized Receptionist verification code required to register</p>
               </div>
             )}
 

@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Users, Stethoscope, CalendarDays, DollarSign, AlertTriangle, BedDouble, Plus, ArrowRight, FileText, Heart } from 'lucide-react';
+import { Users, Stethoscope, CalendarDays, IndianRupee, AlertTriangle, BedDouble, Plus, ArrowRight, FileText, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { KpiCard } from '../components/ui/KpiCard';
 import { Badge } from '../components/ui/Badge';
 import { Avatar } from '../components/ui/Avatar';
+import { ScheduleModal } from '../components/ui/ScheduleModal';
 import { RevenueChart, DepartmentChart } from '../components/charts/DashboardCharts';
 import { kpiSparklines } from '../data/mockData';
 import { patientsService, doctorsService, appointmentsService, invoicesService } from '../lib/firebaseService';
-import { formatDate, formatCurrency } from '../lib/utils';
+import { formatDate, formatCurrency, getCurrentFullDate } from '../lib/utils';
 import { useNav } from '../context/NavContext';
 import { useAuth } from '../context/AuthContext';
 import type { Patient, Doctor, Appointment, Invoice } from '../types';
@@ -22,6 +23,7 @@ export function Dashboard() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
 
   useEffect(() => {
     const unsubP = patientsService.subscribe(setPatients);
@@ -33,7 +35,7 @@ export function Dashboard() {
 
   const displayName = user?.displayName || user?.email?.split('@')[0] || 'User';
   const todayStr = new Date().toISOString().split('T')[0];
-  const todayAppts = appointments.filter(a => a.date === todayStr || a.date === '2024-08-05');
+  const todayAppts = appointments.filter(a => a.date === todayStr || a.date === '2026-08-05');
   const monthRevenue = invoices.filter(i => i.status === 'paid').reduce((s, i) => s + i.total, 0);
   const emergencyCount = appointments.filter(a => a.type === 'emergency').length;
   const recentAppointments = appointments.slice(0, 5);
@@ -41,6 +43,7 @@ export function Dashboard() {
 
   return (
     <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-8">
+      <ScheduleModal open={scheduleOpen} onClose={() => setScheduleOpen(false)} />
       {/* Page header with Role Badge */}
       <motion.div variants={fadeSlide} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -50,13 +53,13 @@ export function Dashboard() {
               {userRole}
             </span>
           </div>
-          <p className="text-sm text-muted">Monday, August 5, 2024 — MediFlow Main Campus</p>
+          <p className="text-sm text-muted">{getCurrentFullDate()} — MediFlow Main Campus</p>
         </div>
 
         <div className="flex gap-3 flex-wrap">
           {userRole === 'admin' && (
             <>
-              <button className="btn-secondary" onClick={() => setActivePage('appointments')}>
+              <button className="btn-secondary" onClick={() => setScheduleOpen(true)}>
                 <CalendarDays size={15} /> Schedule
               </button>
               <button className="btn-primary" onClick={() => setActivePage('patients')}>
@@ -72,15 +75,15 @@ export function Dashboard() {
           {userRole === 'receptionist' && (
             <>
               <button className="btn-secondary" onClick={() => setActivePage('billing')}>
-                <DollarSign size={15} /> Create Bill
+                <IndianRupee size={15} /> Create Bill
               </button>
-              <button className="btn-primary" onClick={() => setActivePage('appointments')}>
+              <button className="btn-primary" onClick={() => setScheduleOpen(true)}>
                 <Plus size={15} /> Book Appointment
               </button>
             </>
           )}
           {userRole === 'patient' && (
-            <button className="btn-primary" onClick={() => setActivePage('doctors')}>
+            <button className="btn-primary" onClick={() => setScheduleOpen(true)}>
               <Stethoscope size={15} /> Book Doctor
             </button>
           )}
@@ -97,7 +100,7 @@ export function Dashboard() {
           <KpiCard label="Appointments Today" value={todayAppts.length || 84} change={12.3} changeType="increase"
             icon={<CalendarDays size={18} />} sparkline={kpiSparklines.appointments} />
           <KpiCard label="Monthly Revenue" value={monthRevenue || 1850000} change={9.8} changeType="increase"
-            icon={<DollarSign size={18} />} isCurrency sparkline={kpiSparklines.revenue} />
+            icon={<IndianRupee size={18} />} isCurrency sparkline={kpiSparklines.revenue} />
           <KpiCard label="Emergency Cases" value={emergencyCount || 9} change={2.1} changeType="decrease"
             icon={<AlertTriangle size={18} />} sparkline={kpiSparklines.emergency} />
           <KpiCard label="Beds Available" value={72} change={3.4} changeType="decrease"
@@ -171,7 +174,7 @@ export function Dashboard() {
           </div>
           <div className="card p-6">
             <p className="text-xs font-semibold text-muted uppercase">Next Appointment</p>
-            <p className="text-lg font-bold text-heading mt-1">Mon, Aug 5 at 09:00 AM</p>
+            <p className="text-lg font-bold text-heading mt-1">Today at 09:00 AM</p>
             <p className="text-xs text-primary font-medium mt-1">Room C-104 · Dr. Rajesh Kumar</p>
           </div>
           <div className="card p-6">
@@ -189,7 +192,7 @@ export function Dashboard() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="section-title">Revenue Overview (INR ₹)</h2>
-                <p className="text-sm text-muted mt-0.5">Monthly revenue trend — 2024</p>
+                <p className="text-sm text-muted mt-0.5">Monthly revenue trend — {new Date().getFullYear()}</p>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-2xl font-bold text-heading">{formatCurrency(monthRevenue || 1850000)}</span>

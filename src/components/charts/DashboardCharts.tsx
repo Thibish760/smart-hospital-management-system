@@ -36,7 +36,7 @@ export function RevenueChart() {
         <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
         <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#94A3B8', fontWeight: 500 }} axisLine={false} tickLine={false} />
         <YAxis tick={{ fontSize: 11, fill: '#94A3B8', fontWeight: 500 }} axisLine={false} tickLine={false}
-          tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+          tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
         <Tooltip content={<CustomTooltip isCurrency />} />
         <Area type="monotone" dataKey="value" stroke="#2563EB" strokeWidth={2}
           fill="url(#revenueGrad)" dot={false} activeDot={{ r: 4, strokeWidth: 2, stroke: '#fff' }} />
@@ -115,7 +115,7 @@ export function DepartmentChart() {
           )}
         />
         <Tooltip
-          formatter={(value: number) => [`${value}%`, 'Share']}
+          formatter={(value: any) => [`${value}%`, 'Share']}
           contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #E5E7EB' }}
         />
       </PieChart>

@@ -40,10 +40,10 @@ export function Sidebar() {
 
   return (
     <motion.aside
-      animate={{ width: sidebarCollapsed ? 72 : 240 }}
+      animate={{ width: sidebarCollapsed ? 72 : 260 }}
       transition={{ duration: 0.2, ease: 'easeInOut' }}
       className="relative flex-shrink-0 flex flex-col h-screen bg-sidebar border-r border-sidebar-border overflow-hidden z-20"
-      style={{ minWidth: sidebarCollapsed ? 72 : 240 }}
+      style={{ minWidth: sidebarCollapsed ? 72 : 260 }}
     >
       {/* Logo */}
       <div className={cn(
@@ -51,7 +51,7 @@ export function Sidebar() {
         sidebarCollapsed ? 'justify-center' : 'gap-3'
       )}>
         <img
-          src="/ChatGPT Image Aug 5, 2026, 10_56_46 AM.png"
+          src="/logo.png"
           alt="MediFlow Logo"
           className="flex-shrink-0"
           style={{ width: 36, height: 36, objectFit: 'contain' }}
@@ -179,26 +179,32 @@ function SidebarUser({ collapsed }: { collapsed: boolean }) {
           {initials}
         </button>
       ) : (
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+        <div className="flex items-start gap-2.5">
+          <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white text-xs font-bold flex-shrink-0 mt-0.5 shadow-sm">
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5">
-              <p className="text-white text-sm font-semibold truncate capitalize">{displayName}</p>
-              <span className={`px-1.5 py-0.5 text-[10px] font-bold rounded border uppercase ${roleBadgeColor[userRole]}`}>
+            <div className="flex items-center justify-between gap-1">
+              <p className="text-white text-sm font-semibold truncate capitalize leading-tight" title={displayName}>
+                {displayName}
+              </p>
+              <button
+                onClick={signOut}
+                title="Sign out"
+                className="text-slate-400 hover:text-white hover:bg-sidebar-hover p-1 rounded-md transition-all flex-shrink-0"
+              >
+                <LogOut size={14} />
+              </button>
+            </div>
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className={`px-1.5 py-0.5 text-[9px] font-bold rounded border uppercase tracking-wider ${roleBadgeColor[userRole]}`}>
                 {userRole}
               </span>
             </div>
-            <p className="text-slate-400 text-xs truncate">{email}</p>
+            <p className="text-slate-300 text-[11px] font-mono leading-tight mt-1 break-all" title={email}>
+              {email}
+            </p>
           </div>
-          <button
-            onClick={signOut}
-            title="Sign out"
-            className="text-slate-400 hover:text-white hover:bg-sidebar-hover p-1 rounded-lg transition-all flex-shrink-0"
-          >
-            <LogOut size={15} />
-          </button>
         </div>
       )}
     </div>

@@ -1,11 +1,12 @@
 import { motion } from 'framer-motion';
-import { BarChart3, TrendingUp, Users, CalendarDays, DollarSign } from 'lucide-react';
+import { TrendingUp, Users, CalendarDays, IndianRupee, Download } from 'lucide-react';
 import {
   BarChart, Bar, LineChart, Line, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  RadarChart, Radar, PolarGrid, PolarAngleAxis, Legend,
+  Legend,
 } from 'recharts';
 import { revenueData, appointmentData, patientGrowthData, doctors } from '../data/mockData';
+import { exportToExcel } from '../lib/exportUtils';
 import { formatCurrency } from '../lib/utils';
 
 const doctorPerformance = doctors.slice(0, 6).map(d => ({
@@ -25,14 +26,26 @@ const occupancyData = [
 ];
 
 export function Reports() {
+  const handleExport = () => {
+    const data = [
+      ...revenueData.map(r => ({ Metric: 'Revenue', Month: r.name, Value: r.value })),
+      ...patientGrowthData.map(p => ({ Metric: 'Patient Growth', Month: p.name, Value: p.value })),
+    ];
+    exportToExcel('hospital_analytics_report', data);
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="page-title">Reports & Analytics</h1>
-          <p className="text-sm text-muted mt-1">August 2024 · MediFlow Main Campus</p>
+          <p className="text-sm text-muted mt-1">{new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })} · MediFlow Main Campus</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <button className="btn-secondary" onClick={handleExport}>
+            <Download size={15} />
+            Export Excel
+          </button>
           <select className="input-base w-36 py-2">
             <option>This Month</option>
             <option>Last Month</option>
@@ -49,7 +62,7 @@ export function Reports() {
         className="grid grid-cols-2 xl:grid-cols-4 gap-4"
       >
         {[
-          { label: 'Monthly Revenue', value: formatCurrency(1850000), change: '+9.8%', icon: DollarSign, bg: 'bg-primary-light text-primary' },
+          { label: 'Monthly Revenue', value: formatCurrency(1850000), change: '+9.8%', icon: IndianRupee, bg: 'bg-primary-light text-primary' },
           { label: 'Total Appointments', value: '1,247', change: '+12.3%', icon: CalendarDays, bg: 'bg-success-light text-success-dark' },
           { label: 'New Patients', value: '124', change: '+6.2%', icon: Users, bg: 'bg-amber-50 text-amber-700' },
           { label: 'Avg. Rating', value: '4.77 ★', change: '+0.12', icon: TrendingUp, bg: 'bg-violet-50 text-violet-700' },
@@ -74,7 +87,7 @@ export function Reports() {
         <div className="card p-6">
           <div className="mb-5">
             <h2 className="section-title">Revenue Trend</h2>
-            <p className="text-sm text-muted mt-0.5">Monthly revenue — Jan to Aug 2024</p>
+            <p className="text-sm text-muted mt-0.5">Monthly revenue — Jan to Aug {new Date().getFullYear()}</p>
           </div>
           <ResponsiveContainer width="100%" height={240}>
             <AreaChart data={revenueData}>
@@ -88,7 +101,7 @@ export function Reports() {
               <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false}
                 tickFormatter={v => `₹${(v / 100000).toFixed(1)}L`} />
-              <Tooltip formatter={(v: number) => [formatCurrency(v), 'Revenue']}
+              <Tooltip formatter={(v: any) => [formatCurrency(v), 'Revenue']}
                 contentStyle={{ fontSize: 12, borderRadius: 12, border: '1px solid #E5E7EB', boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }} />
               <Area type="monotone" dataKey="value" stroke="#2563EB" strokeWidth={2} fill="url(#rg2)" dot={false} activeDot={{ r: 4 }} />
             </AreaChart>

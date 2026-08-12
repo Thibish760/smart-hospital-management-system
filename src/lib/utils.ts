@@ -17,6 +17,27 @@ export function formatDateShort(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+export function getCurrentFullDate(): string {
+  return new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+export function getCurrentDateShort(): string {
+  return new Date().toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+export function getTodayISODate(): string {
+  return new Date().toISOString().split('T')[0];
+}
+
 export function getInitials(name: string): string {
   return name.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
 }

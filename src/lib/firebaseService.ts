@@ -384,3 +384,57 @@ export async function seedDatabaseIfEmpty(): Promise<void> {
   await seedFirebasePath('records',       mockRecords);
   await seedFirebasePath('notifications', mockNotifications);
 }
+
+// ─── ADMIN ACCESS & APPROVALS SERVICE ───────────────────────────────────────
+export interface AdminRequest {
+  id: string;
+  name: string;
+  email: string;
+  date: string;
+  status: 'pending' | 'approved' | 'rejected';
+}
+
+let approvedAdminsList: string[] = ['admin760@gmail.com', 'admin@mediflow.com'];
+let adminRequestsList: AdminRequest[] = [
+  { id: 'req1', name: 'Dr. Robert Vance', email: 'r.vance@mediflow.com', date: '2026-08-10', status: 'pending' },
+  { id: 'req2', name: 'Sarah Jenkins', email: 's.jenkins@mediflow.com', date: '2026-08-11', status: 'pending' },
+];
+
+export const adminRequestsService = {
+  isApprovedAdmin: (email: string): boolean => {
+    if (!email) return false;
+    const lower = email.toLowerCase();
+    return lower === 'admin760@gmail.com' || approvedAdminsList.includes(lower);
+  },
+  getApprovedAdmins: (): string[] => approvedAdminsList,
+  getRequests: (): AdminRequest[] => [...adminRequestsList],
+  addRequest: (name: string, email: string): void => {
+    const lower = email.toLowerCase();
+    const existing = adminRequestsList.find(r => r.email.toLowerCase() === lower);
+    if (!existing) {
+      const newReq: AdminRequest = {
+        id: `req_${Date.now()}`,
+        name: name || email.split('@')[0],
+        email: lower,
+        date: new Date().toISOString().split('T')[0],
+        status: 'pending',
+      };
+      adminRequestsList = [newReq, ...adminRequestsList];
+    }
+  },
+  approveRequest: (id: string): void => {
+    const req = adminRequestsList.find(r => r.id === id);
+    if (req) {
+      req.status = 'approved';
+      if (!approvedAdminsList.includes(req.email.toLowerCase())) {
+        approvedAdminsList.push(req.email.toLowerCase());
+      }
+    }
+  },
+  rejectRequest: (id: string): void => {
+    const req = adminRequestsList.find(r => r.id === id);
+    if (req) {
+      req.status = 'rejected';
+    }
+  },
+};
