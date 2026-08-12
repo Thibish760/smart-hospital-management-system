@@ -136,14 +136,14 @@ export function MedicalRecords() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="page-title">Medical Records</h1>
           <p className="text-sm text-muted mt-1">
             {loading ? 'Loading…' : `${records.length} records on file`}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <button className="btn-secondary" onClick={handleExport}>
             <Download size={15} />
             Export Excel
@@ -229,23 +229,23 @@ export function MedicalRecords() {
             return (
               <motion.div key={record.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }} className="card p-5 hover:shadow-card-hover transition-all relative group">
-                <div className="flex items-start gap-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClass}`}>
-                    <Icon size={18} />
+              <div className="flex items-start gap-3 sm:gap-4">
+                  <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClass}`}>
+                    <Icon size={17} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-sm font-semibold text-heading">{record.title}</p>
-                        <p className="text-xs text-muted mt-0.5">{record.patientName} · {record.doctor} · {record.department}</p>
+                    <div className="flex items-start justify-between gap-2 sm:gap-4">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-heading break-words">{record.title}</p>
+                        <p className="text-xs text-muted mt-0.5 break-words">{record.patientName} · {record.doctor} · {record.department}</p>
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
+                      <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                         <div className="text-right">
-                          <p className="text-xs font-medium text-muted">{formatDate(record.date)}</p>
+                          <p className="text-xs font-medium text-muted whitespace-nowrap">{formatDate(record.date)}</p>
                           <Badge variant="default" className="mt-1 capitalize">{record.type?.replace('-', ' ')}</Badge>
                         </div>
                         <button
-                          className="p-1.5 text-muted hover:text-danger hover:bg-danger-light rounded-lg transition-colors ml-1"
+                          className="p-1.5 text-muted hover:text-danger hover:bg-danger-light rounded-lg transition-colors"
                           title="Delete Record"
                           onClick={() => setDeleteConfirm(record)}
                         >

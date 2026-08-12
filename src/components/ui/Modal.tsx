@@ -45,7 +45,7 @@ export function Modal({ open, onClose, title, subtitle, children, footer, size =
             )}
           >
             {/* Header */}
-            <div className="flex items-start justify-between px-6 py-4 border-b border-border flex-shrink-0">
+            <div className="flex items-start justify-between px-4 py-3.5 sm:px-6 sm:py-4 border-b border-border flex-shrink-0">
               <div>
                 {title && <h2 className="text-base font-semibold text-heading">{title}</h2>}
                 {subtitle && <p className="text-sm text-muted mt-0.5">{subtitle}</p>}
@@ -60,13 +60,13 @@ export function Modal({ open, onClose, title, subtitle, children, footer, size =
             </div>
 
             {/* Content */}
-            <div className="px-6 py-5 overflow-y-auto flex-1">
+            <div className="px-4 py-4 sm:px-6 sm:py-5 overflow-y-auto flex-1">
               {children}
             </div>
 
             {/* Footer */}
             {footer && (
-              <div className="px-6 py-4 border-t border-border bg-background/50 rounded-b-modal flex justify-end gap-3 flex-shrink-0">
+              <div className="px-4 py-3.5 sm:px-6 sm:py-4 border-t border-border bg-background/50 rounded-b-modal flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 flex-shrink-0">
                 {footer}
               </div>
             )}

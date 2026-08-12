@@ -76,14 +76,14 @@ export function NotificationsPage() {
 
   return (
     <div className="space-y-6 animate-fade-in max-w-3xl">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="page-title">Notifications</h1>
           <p className="text-sm text-muted mt-1">
             {loading ? 'Loading…' : `${unread.length} unread notifications`}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           {unread.length > 0 && (
             <button className="btn-secondary text-sm" onClick={handleMarkAllRead}>
               <CheckCheck size={15} />
@@ -158,7 +158,7 @@ export function NotificationsPage() {
                 </div>
                 <button
                   onClick={() => handleDelete(n.id)}
-                  className="p-1 text-muted hover:text-danger rounded-md transition-colors opacity-0 group-hover:opacity-100"
+                  className="p-1 text-muted hover:text-danger rounded-md transition-colors opacity-100 md:opacity-0 md:group-hover:opacity-100"
                   title="Delete"
                 >
                   <Trash2 size={14} />

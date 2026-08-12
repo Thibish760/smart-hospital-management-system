@@ -80,7 +80,7 @@ export function Departments() {
           <h1 className="page-title">Departments</h1>
           <p className="text-sm text-muted mt-1">{deptList.length} active departments</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <button className="btn-secondary" onClick={handleExport}>
             <Download size={15} />
             Export Excel
@@ -93,7 +93,7 @@ export function Departments() {
       </div>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: 'Total Departments', value: deptList.length, icon: Building2, color: 'text-primary bg-primary-light' },
           { label: 'Total Doctors', value: deptList.reduce((s, d) => s + d.doctorCount, 0), icon: Users, color: 'text-emerald-700 bg-emerald-50' },
@@ -111,7 +111,7 @@ export function Departments() {
       </div>
 
       {/* Department Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
         {deptList.map((dept, i) => {
           const occupancy = Math.round((dept.bedsOccupied / Math.max(dept.bedCount, 1)) * 100);
           return (
@@ -123,21 +123,21 @@ export function Departments() {
               className="card p-5 hover:shadow-card-hover transition-all relative group"
             >
               {/* Header */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
+              <div className="flex items-start justify-between mb-4 gap-2">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
                   <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm"
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
                     style={{ backgroundColor: dept.color }}
                   >
                     {dept.name.charAt(0)}
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-heading">{dept.name}</p>
-                    <p className="text-xs text-muted">{dept.head}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-bold text-heading break-words leading-snug">{dept.name}</p>
+                    <p className="text-xs text-muted truncate">{dept.head}</p>
                   </div>
                 </div>
                 <button
-                  className="p-1.5 text-muted hover:text-danger hover:bg-danger-light rounded-lg transition-colors"
+                  className="p-1.5 text-muted hover:text-danger hover:bg-danger-light rounded-lg transition-colors flex-shrink-0"
                   title="Delete Department"
                   onClick={() => setDeleteConfirm(dept)}
                 >

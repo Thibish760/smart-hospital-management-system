@@ -126,14 +126,14 @@ export function Patients() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="page-title">Patients</h1>
           <p className="text-sm text-muted mt-1">
             {loading ? 'Loading…' : `${patients.length} total registered patients`}
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <button className="btn-secondary" onClick={handleExport}>
             <Download size={15} />
             Export
@@ -174,7 +174,7 @@ export function Patients() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[560px]">
               <thead>
                 <tr className="border-b border-border bg-background/60">
                   <th className="text-left px-6 py-3.5 table-header">Patient</th>
@@ -190,11 +190,11 @@ export function Patients() {
                 {paginated.map(patient => (
                   <motion.tr key={patient.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                     className="hover:bg-background/60 transition-colors group">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
+                    <td className="px-4 sm:px-6 py-4">
+                      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                         <Avatar name={patient.name} size="sm" />
-                        <div>
-                          <p className="text-sm font-semibold text-heading">{patient.name}</p>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-heading truncate">{patient.name}</p>
                           <p className="text-xs text-muted">{patient.age}y · {patient.gender} · {patient.bloodGroup}</p>
                         </div>
                       </div>
@@ -213,7 +213,7 @@ export function Patients() {
                     </td>
                     <td className="px-4 py-4"><Badge status={patient.status} /></td>
                     <td className="px-4 py-4">
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                         <button onClick={() => { setSelected(patient); setDrawerTab('profile'); }}
                           className="btn-icon w-7 h-7" title="View Profile">
                           <Eye size={13} />

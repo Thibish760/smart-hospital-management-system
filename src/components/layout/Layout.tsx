@@ -58,7 +58,7 @@ export function Layout() {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <TopBar />
         <main className="flex-1 overflow-y-auto">
-          <div className="max-w-container mx-auto px-8 py-8">
+          <div className="max-w-container mx-auto px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
             <PageComponent />
           </div>
         </main>

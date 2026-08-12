@@ -83,14 +83,14 @@ export function Appointments() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="page-title">Appointments</h1>
           <p className="text-sm text-muted mt-1">
             {loading ? 'Loading…' : `${appointments.length} total appointments`}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <button className="btn-secondary" onClick={handleExport}>
             <Download size={15} />
             Export Excel
@@ -135,7 +135,7 @@ export function Appointments() {
           {view === 'list' && (
             <div className="card overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full min-w-[540px]">
                   <thead>
                     <tr className="border-b border-border bg-background/60">
                       <th className="text-left px-6 py-3.5 table-header">Patient</th>
@@ -152,14 +152,14 @@ export function Appointments() {
                     {filtered.map((apt, i) => (
                       <motion.tr key={apt.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                         transition={{ delay: i * 0.03 }} className="hover:bg-background/60 transition-colors group">
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
+                        <td className="px-4 sm:px-6 py-4">
+                          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                             <Avatar name={apt.patientName} size="sm" />
-                            <p className="text-sm font-semibold text-heading">{apt.patientName}</p>
+                            <p className="text-sm font-semibold text-heading truncate">{apt.patientName}</p>
                           </div>
                         </td>
                         <td className="px-4 py-4">
-                          <p className="text-sm text-paragraph">{apt.doctorName}</p>
+                          <p className="text-sm text-paragraph truncate max-w-[100px] sm:max-w-none">{apt.doctorName}</p>
                           <p className="text-xs text-muted">{apt.department}</p>
                         </td>
                         <td className="px-4 py-4 hidden md:table-cell">

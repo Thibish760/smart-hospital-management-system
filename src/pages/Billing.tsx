@@ -128,42 +128,42 @@ export function Billing() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="page-title">Billing & Invoices</h1>
           <p className="text-sm text-muted mt-1">
             {loading ? 'Loading…' : `${invoices.length} invoices this period`}
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <button className="btn-secondary" onClick={handleExport}><Download size={15} />Export</button>
           <button className="btn-primary" onClick={() => setAddOpen(true)}><Plus size={15} />New Invoice</button>
         </div>
       </div>
 
       {/* Revenue Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: 'Total Invoiced', value: grandTotal, icon: FileText, color: 'text-heading bg-background' },
           { label: 'Revenue Collected', value: totalRevenue, icon: CheckCircle, color: 'text-success-dark bg-success-light' },
           { label: 'Pending', value: totalPending, icon: Clock, color: 'text-warning-dark bg-warning-light' },
           { label: 'Overdue', value: totalOverdue, icon: AlertCircle, color: 'text-danger-dark bg-danger-light' },
         ].map(({ label, value, icon: Icon, color }) => (
-          <div key={label} className="card p-5">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold text-muted uppercase tracking-wider">{label}</p>
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${color}`}>
+          <div key={label} className="card p-4 sm:p-5">
+            <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <p className="text-xs font-semibold text-muted uppercase tracking-wider leading-snug break-words flex-1 min-w-0 pr-2">{label}</p>
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${color}`}>
                 <Icon size={15} />
               </div>
             </div>
-            <p className="text-2xl font-bold text-heading">{formatCurrency(value)}</p>
+            <p className="text-xl sm:text-2xl font-bold text-heading break-all">{formatCurrency(value)}</p>
           </div>
         ))}
       </div>
 
       {/* Filters */}
       <div className="flex gap-3 flex-wrap">
-        <div className="relative flex-1 max-w-sm">
+        <div className="relative flex-1 max-w-sm min-w-[200px]">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
           <input className="input-base pl-9" placeholder="Search invoices or patients…"
             value={search} onChange={e => setSearch(e.target.value)} />
@@ -187,7 +187,7 @@ export function Billing() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[560px]">
               <thead>
                 <tr className="border-b border-border bg-background/60">
                   <th className="text-left px-6 py-3.5 table-header">Invoice</th>
@@ -209,9 +209,9 @@ export function Billing() {
                       {inv.paymentMethod && <p className="text-xs text-muted capitalize">{inv.paymentMethod?.replace('-', ' ')}</p>}
                     </td>
                     <td className="px-4 py-4">
-                      <div className="flex items-center gap-2.5">
+                      <div className="flex items-center gap-2 min-w-0">
                         <Avatar name={inv.patientName} size="sm" />
-                        <span className="text-sm font-medium text-heading">{inv.patientName}</span>
+                        <span className="text-sm font-medium text-heading truncate max-w-[100px] sm:max-w-none">{inv.patientName}</span>
                       </div>
                     </td>
                     <td className="px-4 py-4 hidden md:table-cell">

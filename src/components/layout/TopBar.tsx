@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Bell, MessageSquare, ChevronDown, Settings, User, LogOut, Building2 } from 'lucide-react';
+import { Search, Bell, MessageSquare, ChevronDown, Settings, User, LogOut, Building2, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNav } from '../../context/NavContext';
 import { useAuth } from '../../context/AuthContext';
@@ -21,7 +21,7 @@ const pageTitles: Record<string, string> = {
 };
 
 export function TopBar() {
-  const { activePage } = useNav();
+  const { activePage, toggleMobileNav } = useNav();
   const { user, userRole, signOut } = useAuth();
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -39,10 +39,19 @@ export function TopBar() {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <header className="h-16 bg-surface border-b border-border flex items-center px-8 gap-4 flex-shrink-0 relative z-10">
+    <header className="h-16 bg-surface border-b border-border flex items-center px-4 sm:px-6 lg:px-8 gap-3 sm:gap-4 flex-shrink-0 relative z-10">
+      {/* Mobile Menu Toggle Button */}
+      <button
+        onClick={toggleMobileNav}
+        className="btn-icon md:hidden flex-shrink-0 text-heading"
+        title="Open Navigation"
+      >
+        <Menu size={18} />
+      </button>
+
       {/* Page Title */}
       <div className="flex-1 min-w-0">
-        <h1 className="text-lg font-semibold text-heading truncate">{pageTitles[activePage] || 'MediFlow'}</h1>
+        <h1 className="text-base sm:text-lg font-semibold text-heading truncate">{pageTitles[activePage] || 'MediFlow'}</h1>
       </div>
 
       {/* Search */}
@@ -71,7 +80,7 @@ export function TopBar() {
 
       <div className="flex items-center gap-1">
         {/* Messages */}
-        <button className="btn-icon relative">
+        <button className="btn-icon relative hidden sm:inline-flex">
           <MessageSquare size={16} />
         </button>
 
@@ -96,7 +105,7 @@ export function TopBar() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 8, scale: 0.97 }}
                 transition={{ duration: 0.15 }}
-                className="absolute right-0 top-full mt-2 w-96 bg-surface rounded-modal border border-border shadow-modal overflow-hidden"
+                className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] max-w-sm sm:w-96 bg-surface rounded-modal border border-border shadow-modal overflow-hidden z-30"
               >
                 <div className="flex items-center justify-between px-5 py-4 border-b border-border">
                   <h3 className="text-sm font-semibold text-heading">Notifications</h3>
@@ -155,7 +164,7 @@ export function TopBar() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 8, scale: 0.97 }}
                 transition={{ duration: 0.15 }}
-                className="absolute right-0 top-full mt-2 w-60 bg-surface rounded-modal border border-border shadow-modal overflow-hidden z-30"
+                className="absolute right-0 top-full mt-2 w-60 max-w-[calc(100vw-2rem)] bg-surface rounded-modal border border-border shadow-modal overflow-hidden z-30"
               >
                 <div className="px-4 py-3 border-b border-border">
                   <div className="flex items-center justify-between">

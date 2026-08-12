@@ -27,7 +27,7 @@ export function Settings() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="page-title">Settings & Configuration</h1>
           <p className="text-sm text-muted mt-1">Manage your hospital system setup, security, and integrations</p>
@@ -40,9 +40,30 @@ export function Settings() {
         )}
       </div>
 
+      {/* Mobile & Tablet: Horizontal scrollable pill tabs */}
+      <div className="xl:hidden overflow-x-auto no-scrollbar pb-1">
+        <div className="flex gap-2 min-w-max">
+          {SETTINGS_SECTIONS.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setActiveSection(id)}
+              className={cn(
+                'flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all',
+                activeSection === id
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'bg-white border border-border text-paragraph hover:bg-background'
+              )}
+            >
+              <Icon size={14} />
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-5">
-        {/* Sidebar Nav */}
-        <div className="card p-2 h-fit">
+        {/* Desktop Sidebar Nav */}
+        <div className="card p-2 h-fit hidden xl:block">
           <nav className="space-y-0.5">
             {SETTINGS_SECTIONS.map(({ id, label, icon: Icon, desc }) => (
               <button

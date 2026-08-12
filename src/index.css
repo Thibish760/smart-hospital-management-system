@@ -75,6 +75,8 @@
 
   .card {
     @apply bg-surface/90 backdrop-blur-md rounded-card border border-border/80 shadow-card transition-all duration-200;
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
 
   /* Glassmorphism Design Tokens */
@@ -115,17 +117,30 @@
   }
 
   .page-title {
-    @apply text-2xl font-bold text-heading tracking-tight;
+    @apply text-xl sm:text-2xl font-bold text-heading tracking-tight;
   }
 
   .section-title {
-    @apply text-lg font-semibold text-heading;
+    @apply text-base sm:text-lg font-semibold text-heading;
   }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  /* Prevent any element from silently overflowing horizontally */
+  .safe-text {
+    overflow-wrap: break-word;
+    word-break: break-word;
+    min-width: 0;
   }
 }
 

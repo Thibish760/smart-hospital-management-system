@@ -81,12 +81,12 @@ export function Doctors() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <button className="btn-secondary" onClick={handleExport}>
             <Download size={15} />
             Export Excel
           </button>
-          <div className="relative flex-1 sm:w-64">
+          <div className="relative flex-1 sm:w-64 min-w-[200px]">
             <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
             <input
               type="text"
@@ -121,7 +121,7 @@ export function Doctors() {
           <p className="text-sm text-muted">Loading doctors from Firebase…</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
           {filtered.map((doctor, i) => (
             <motion.div key={doctor.id}
               initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
@@ -187,19 +187,19 @@ function DoctorCard({ doctor, onClick, onBook, onDelete }: { doctor: Doctor; onC
     available: 'bg-success', busy: 'bg-warning', 'off-duty': 'bg-muted', 'on-leave': 'bg-danger',
   };
   return (
-    <div className="card p-5 hover:shadow-card-hover transition-all duration-200 cursor-pointer group relative" onClick={onClick}>
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="relative">
+    <div className="card p-4 sm:p-5 hover:shadow-card-hover transition-all duration-200 cursor-pointer group relative" onClick={onClick}>
+      <div className="flex items-start justify-between mb-4 gap-2">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div className="relative flex-shrink-0">
             <Avatar name={doctor.name} size="lg" />
             <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${statusDot[doctor.status] || 'bg-muted'}`} />
           </div>
-          <div>
-            <p className="text-sm font-semibold text-heading">{doctor.name}</p>
-            <p className="text-xs text-muted mt-0.5">{doctor.specialty}</p>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-heading break-words leading-snug">{doctor.name}</p>
+            <p className="text-xs text-muted mt-0.5 break-words">{doctor.specialty}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 flex-shrink-0">
           <Badge status={doctor.status} />
           <button
             className="p-1 text-muted hover:text-danger hover:bg-danger-light rounded-md transition-colors opacity-80 group-hover:opacity-100"
@@ -212,31 +212,31 @@ function DoctorCard({ doctor, onClick, onBook, onDelete }: { doctor: Doctor; onC
       </div>
       <div className="px-3 py-2 bg-background rounded-xl mb-4">
         <p className="text-xs text-muted">Department</p>
-        <p className="text-sm font-semibold text-heading mt-0.5">{doctor.department}</p>
+        <p className="text-sm font-semibold text-heading mt-0.5 break-words">{doctor.department}</p>
       </div>
-      <div className="grid grid-cols-3 gap-3 mb-4">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4">
         <div className="text-center">
-          <p className="text-lg font-bold text-heading">{doctor.experience}y</p>
-          <p className="text-xs text-muted">Experience</p>
+          <p className="text-base sm:text-lg font-bold text-heading">{doctor.experience}y</p>
+          <p className="text-xs text-muted">Exp.</p>
         </div>
         <div className="text-center">
-          <p className="text-lg font-bold text-heading">{doctor.patientCount}</p>
+          <p className="text-base sm:text-lg font-bold text-heading">{doctor.patientCount}</p>
           <p className="text-xs text-muted">Patients</p>
         </div>
         <div className="text-center">
-          <div className="flex items-center justify-center gap-1">
-            <Star size={13} className="fill-warning text-warning" />
+          <div className="flex items-center justify-center gap-0.5">
+            <Star size={12} className="fill-warning text-warning" />
             <span className="text-sm font-bold text-heading">{doctor.rating}</span>
           </div>
-          <p className="text-xs text-muted">{doctor.reviewCount} reviews</p>
+          <p className="text-xs text-muted">{doctor.reviewCount} rev.</p>
         </div>
       </div>
-      <div className="flex items-center justify-between pt-3 border-t border-border">
-        <div>
+      <div className="flex items-center justify-between pt-3 border-t border-border gap-2">
+        <div className="min-w-0">
           <p className="text-xs text-muted">Consultation Fee</p>
-          <p className="text-sm font-bold text-heading">{formatCurrency(doctor.consultationFee)}</p>
+          <p className="text-sm font-bold text-heading break-words">{formatCurrency(doctor.consultationFee)}</p>
         </div>
-        <button className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary-hover transition-colors"
+        <button className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary-hover transition-colors flex-shrink-0"
           onClick={e => { e.stopPropagation(); onBook(); }}>
           Book <ChevronRight size={13} />
         </button>

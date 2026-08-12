@@ -53,7 +53,8 @@ export function Dashboard() {
               {userRole}
             </span>
           </div>
-          <p className="text-sm text-muted">{getCurrentFullDate()} — MediFlow Main Campus</p>
+          <p className="text-sm text-muted break-words">{
+            getCurrentFullDate()} — MediFlow Main Campus</p>
         </div>
 
         <div className="flex gap-3 flex-wrap">
@@ -92,7 +93,7 @@ export function Dashboard() {
 
       {/* Role-tailored KPI Section */}
       {userRole === 'admin' && (
-        <motion.div variants={fadeSlide} className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 gap-5">
+        <motion.div variants={fadeSlide} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4 sm:gap-5">
           <KpiCard label="Total Patients" value={patients.length || 2614} change={6.2} changeType="increase"
             icon={<Users size={18} />} sparkline={kpiSparklines.patients} />
           <KpiCard label="Active Doctors" value={doctors.filter(d => d.status !== 'on-leave').length || 48} change={4.1} changeType="increase"
@@ -109,50 +110,50 @@ export function Dashboard() {
       )}
 
       {userRole === 'doctor' && (
-        <motion.div variants={fadeSlide} className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-          <div className="card p-5">
-            <p className="text-xs font-semibold text-muted uppercase">My Consultations Today</p>
-            <p className="text-3xl font-bold text-heading mt-2">12</p>
+        <motion.div variants={fadeSlide} className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 sm:gap-5">
+          <div className="card p-4 sm:p-5">
+            <p className="text-xs font-semibold text-muted uppercase leading-snug break-words">My Consultations Today</p>
+            <p className="text-2xl sm:text-3xl font-bold text-heading mt-2">12</p>
             <p className="text-xs text-success-dark font-medium mt-1">↑ 3 pending</p>
           </div>
-          <div className="card p-5">
-            <p className="text-xs font-semibold text-muted uppercase">Assigned Patients</p>
-            <p className="text-3xl font-bold text-heading mt-2">142</p>
+          <div className="card p-4 sm:p-5">
+            <p className="text-xs font-semibold text-muted uppercase leading-snug break-words">Assigned Patients</p>
+            <p className="text-2xl sm:text-3xl font-bold text-heading mt-2">142</p>
             <p className="text-xs text-muted mt-1">Active under care</p>
           </div>
-          <div className="card p-5">
-            <p className="text-xs font-semibold text-muted uppercase">Lab Reports Pending</p>
-            <p className="text-3xl font-bold text-heading mt-2">5</p>
+          <div className="card p-4 sm:p-5">
+            <p className="text-xs font-semibold text-muted uppercase leading-snug break-words">Lab Reports Pending</p>
+            <p className="text-2xl sm:text-3xl font-bold text-heading mt-2">5</p>
             <p className="text-xs text-warning-dark font-medium mt-1">Requires review</p>
           </div>
-          <div className="card p-5">
-            <p className="text-xs font-semibold text-muted uppercase">Rating</p>
-            <p className="text-3xl font-bold text-heading mt-2">4.9 ★</p>
-            <p className="text-xs text-muted mt-1">387 patient reviews</p>
+          <div className="card p-4 sm:p-5">
+            <p className="text-xs font-semibold text-muted uppercase leading-snug break-words">Rating</p>
+            <p className="text-2xl sm:text-3xl font-bold text-heading mt-2">4.9 ★</p>
+            <p className="text-xs text-muted mt-1">387 reviews</p>
           </div>
         </motion.div>
       )}
 
       {userRole === 'receptionist' && (
-        <motion.div variants={fadeSlide} className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-          <div className="card p-5">
-            <p className="text-xs font-semibold text-muted uppercase">Appointments Today</p>
-            <p className="text-3xl font-bold text-heading mt-2">{todayAppts.length || 84}</p>
+        <motion.div variants={fadeSlide} className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 sm:gap-5">
+          <div className="card p-4 sm:p-5">
+            <p className="text-xs font-semibold text-muted uppercase leading-snug break-words">Appointments Today</p>
+            <p className="text-2xl sm:text-3xl font-bold text-heading mt-2">{todayAppts.length || 84}</p>
             <p className="text-xs text-primary font-medium mt-1">Check-ins in progress</p>
           </div>
-          <div className="card p-5">
-            <p className="text-xs font-semibold text-muted uppercase">New Registrations</p>
-            <p className="text-3xl font-bold text-heading mt-2">{patients.length || 12}</p>
+          <div className="card p-4 sm:p-5">
+            <p className="text-xs font-semibold text-muted uppercase leading-snug break-words">New Registrations</p>
+            <p className="text-2xl sm:text-3xl font-bold text-heading mt-2">{patients.length || 12}</p>
             <p className="text-xs text-success-dark font-medium mt-1">Registered today</p>
           </div>
-          <div className="card p-5">
-            <p className="text-xs font-semibold text-muted uppercase">Pending Invoices</p>
-            <p className="text-3xl font-bold text-heading mt-2">{invoices.filter(i => i.status === 'pending').length}</p>
+          <div className="card p-4 sm:p-5">
+            <p className="text-xs font-semibold text-muted uppercase leading-snug break-words">Pending Invoices</p>
+            <p className="text-2xl sm:text-3xl font-bold text-heading mt-2">{invoices.filter(i => i.status === 'pending').length}</p>
             <p className="text-xs text-warning-dark font-medium mt-1">Ready for payment</p>
           </div>
-          <div className="card p-5">
-            <p className="text-xs font-semibold text-muted uppercase">Available Beds</p>
-            <p className="text-3xl font-bold text-heading mt-2">72 / 120</p>
+          <div className="card p-4 sm:p-5">
+            <p className="text-xs font-semibold text-muted uppercase leading-snug break-words">Available Beds</p>
+            <p className="text-2xl sm:text-3xl font-bold text-heading mt-2">72 / 120</p>
             <p className="text-xs text-muted mt-1">General & ICU</p>
           </div>
         </motion.div>
@@ -189,13 +190,13 @@ export function Dashboard() {
       {(userRole === 'admin' || userRole === 'receptionist') && (
         <motion.div variants={fadeSlide} className="grid grid-cols-1 xl:grid-cols-3 gap-5">
           <div className="card p-6 xl:col-span-2">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
               <div>
                 <h2 className="section-title">Revenue Overview (INR ₹)</h2>
                 <p className="text-sm text-muted mt-0.5">Monthly revenue trend — {new Date().getFullYear()}</p>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold text-heading">{formatCurrency(monthRevenue || 1850000)}</span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xl sm:text-2xl font-bold text-heading">{formatCurrency(monthRevenue || 1850000)}</span>
                 <span className="badge bg-success-light text-success-dark text-xs">+9.8%</span>
               </div>
             </div>
@@ -226,10 +227,10 @@ export function Dashboard() {
           </div>
           <div className="divide-y divide-border-light">
             {recentAppointments.map((apt) => (
-              <div key={apt.id} className="flex items-center gap-4 px-6 py-3.5 hover:bg-background transition-colors">
-                <div className="text-center w-14 flex-shrink-0">
-                  <p className="text-sm font-bold text-heading">{apt.time}</p>
-                  <p className="text-xs text-muted">{apt.duration}min</p>
+              <div key={apt.id} className="flex items-center gap-2 sm:gap-4 px-4 sm:px-6 py-3.5 hover:bg-background transition-colors">
+                <div className="text-center w-12 flex-shrink-0">
+                  <p className="text-xs sm:text-sm font-bold text-heading">{apt.time}</p>
+                  <p className="text-xs text-muted">{apt.duration}m</p>
                 </div>
                 <div className="w-px h-8 bg-border flex-shrink-0" />
                 <Avatar name={apt.patientName} size="sm" />
@@ -237,9 +238,9 @@ export function Dashboard() {
                   <p className="text-sm font-semibold text-heading truncate">{apt.patientName}</p>
                   <p className="text-xs text-muted truncate">{apt.doctorName} · {apt.department}</p>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-1.5 flex-shrink-0">
                   <Badge status={apt.status} />
-                  {apt.room && <span className="text-xs text-muted">{apt.room}</span>}
+                  {apt.room && <span className="text-xs text-muted hidden sm:inline">{apt.room}</span>}
                 </div>
               </div>
             ))}
@@ -259,15 +260,15 @@ export function Dashboard() {
           </div>
           <div className="divide-y divide-border-light">
             {recentPatients.map((patient) => (
-              <div key={patient.id} className="flex items-center gap-4 px-6 py-3.5 hover:bg-background transition-colors">
+              <div key={patient.id} className="flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-3.5 hover:bg-background transition-colors">
                 <Avatar name={patient.name} size="sm" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-heading truncate">{patient.name}</p>
-                  <p className="text-xs text-muted">{patient.mrn} · {patient.department} · {patient.age}y, {patient.gender}</p>
+                  <p className="text-xs text-muted truncate">{patient.mrn} · {patient.department}</p>
                 </div>
                 <div className="text-right flex-shrink-0">
                   <Badge status={patient.status} />
-                  <p className="text-xs text-muted mt-1">Last: {formatDate(patient.lastVisit)}</p>
+                  <p className="text-xs text-muted mt-1 hidden sm:block">Last: {formatDate(patient.lastVisit)}</p>
                 </div>
               </div>
             ))}

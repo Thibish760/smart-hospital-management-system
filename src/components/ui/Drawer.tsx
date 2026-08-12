@@ -12,9 +12,9 @@ interface DrawerProps {
 }
 
 const widthClasses = {
-  sm: 'w-96',
-  md: 'w-[520px]',
-  lg: 'w-[680px]',
+  sm: 'w-full max-w-full sm:w-96',
+  md: 'w-full max-w-full sm:w-[520px]',
+  lg: 'w-full max-w-full sm:w-[680px]',
 };
 
 export function Drawer({ open, onClose, title, subtitle, children, width = 'md' }: DrawerProps) {

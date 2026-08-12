@@ -36,12 +36,12 @@ export function Reports() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="page-title">Reports & Analytics</h1>
           <p className="text-sm text-muted mt-1">{new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })} · MediFlow Main Campus</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <button className="btn-secondary" onClick={handleExport}>
             <Download size={15} />
             Export Excel
@@ -59,7 +59,7 @@ export function Reports() {
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="grid grid-cols-2 xl:grid-cols-4 gap-4"
+        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"
       >
         {[
           { label: 'Monthly Revenue', value: formatCurrency(1850000), change: '+9.8%', icon: IndianRupee, bg: 'bg-primary-light text-primary' },
@@ -67,17 +67,17 @@ export function Reports() {
           { label: 'New Patients', value: '124', change: '+6.2%', icon: Users, bg: 'bg-amber-50 text-amber-700' },
           { label: 'Avg. Rating', value: '4.77 ★', change: '+0.12', icon: TrendingUp, bg: 'bg-violet-50 text-violet-700' },
         ].map(({ label, value, change, icon: Icon, bg }) => (
-          <div key={label} className="card p-5">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-semibold text-muted uppercase tracking-wider">{label}</p>
-                <p className="text-2xl font-bold text-heading mt-1">{value}</p>
+          <div key={label} className="card p-4 sm:p-5">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-muted uppercase tracking-wider leading-snug break-words">{label}</p>
+                <p className="text-xl sm:text-2xl font-bold text-heading mt-1 break-all">{value}</p>
               </div>
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${bg}`}>
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${bg}`}>
                 <Icon size={16} />
               </div>
             </div>
-            <p className="text-xs font-semibold text-success-dark mt-2">↑ {change} vs last month</p>
+            <p className="text-xs font-semibold text-success-dark mt-2">&uarr; {change} vs last month</p>
           </div>
         ))}
       </motion.div>
@@ -89,7 +89,7 @@ export function Reports() {
             <h2 className="section-title">Revenue Trend</h2>
             <p className="text-sm text-muted mt-0.5">Monthly revenue — Jan to Aug {new Date().getFullYear()}</p>
           </div>
-          <ResponsiveContainer width="100%" height={240}>
+          <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={revenueData}>
               <defs>
                 <linearGradient id="rg2" x1="0" y1="0" x2="0" y2="1">
@@ -113,7 +113,7 @@ export function Reports() {
             <h2 className="section-title">Patient Growth</h2>
             <p className="text-sm text-muted mt-0.5">Cumulative registered patients</p>
           </div>
-          <ResponsiveContainer width="100%" height={240}>
+          <ResponsiveContainer width="100%" height={220}>
             <LineChart data={patientGrowthData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
               <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
