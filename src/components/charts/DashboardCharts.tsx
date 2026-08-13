@@ -1,6 +1,6 @@
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, Legend,
+  ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell,
 } from 'recharts';
 import { revenueData, appointmentData, patientGrowthData, departmentDistribution } from '../../data/mockData';
 import { formatCurrency } from '../../lib/utils';
