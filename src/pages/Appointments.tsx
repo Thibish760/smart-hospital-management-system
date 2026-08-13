@@ -82,46 +82,52 @@ export function Appointments() {
   const filtered = statusFilter === 'all' ? appointments : appointments.filter(a => a.status === statusFilter);
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-4 sm:space-y-5 lg:space-y-6 animate-fade-in">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
           <h1 className="page-title">Appointments</h1>
           <p className="text-sm text-muted mt-1">
             {loading ? 'Loading…' : `${appointments.length} total appointments`}
           </p>
         </div>
-        <div className="flex items-center gap-3 flex-wrap">
-          <button className="btn-secondary" onClick={handleExport}>
+        {/* Action Buttons — stacked on mobile */}
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <button className="btn-secondary text-sm" onClick={handleExport}>
             <Download size={15} />
             Export Excel
           </button>
           <div className="flex bg-background border border-border rounded-input p-0.5">
             {(['list', 'timeline', 'week'] as ViewMode[]).map(v => (
               <button key={v} onClick={() => setView(v)}
-                className={`px-3 py-1.5 text-sm font-medium rounded-lg capitalize transition-all ${
+                className={`px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg capitalize transition-all ${
                   view === v ? 'bg-white text-heading shadow-card' : 'text-muted hover:text-heading'
                 }`}>{v}</button>
             ))}
           </div>
-          <button className="btn-primary" onClick={() => setScheduleOpen(true)}><Plus size={15} />Schedule</button>
+          <button className="btn-primary" onClick={() => setScheduleOpen(true)}>
+            <Plus size={15} />Schedule
+          </button>
         </div>
       </div>
 
-      {/* Status Filters */}
-      <div className="flex gap-2 flex-wrap">
-        {STATUSES.map(s => (
-          <button key={s} onClick={() => setStatusFilter(s)}
-            className={`px-3.5 py-1.5 text-sm font-medium rounded-full transition-all ${
-              statusFilter === s ? 'bg-primary text-white' : 'bg-white border border-border text-paragraph hover:border-gray-300'
-            }`}>
-            {s === 'all' ? 'All' : capitalizeStatus(s)}
-            {s !== 'all' && (
-              <span className="ml-1.5 text-xs opacity-70">
-                {appointments.filter(a => a.status === s).length}
-              </span>
-            )}
-          </button>
-        ))}
+      {/* Status Filters — horizontally scrollable on mobile */}
+      <div className="overflow-x-auto no-scrollbar -mx-4 sm:mx-0 px-4 sm:px-0">
+        <div className="flex gap-2 w-max sm:w-auto sm:flex-wrap pb-1">
+          {STATUSES.map(s => (
+            <button key={s} onClick={() => setStatusFilter(s)}
+              className={`px-3 sm:px-3.5 py-1.5 text-xs sm:text-sm font-medium rounded-full transition-all whitespace-nowrap flex-shrink-0 ${
+                statusFilter === s ? 'bg-primary text-white' : 'bg-white border border-border text-paragraph hover:border-gray-300'
+              }`}>
+              {s === 'all' ? 'All' : capitalizeStatus(s)}
+              {s !== 'all' && (
+                <span className="ml-1 sm:ml-1.5 text-xs opacity-70">
+                  {appointments.filter(a => a.status === s).length}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
       {loading ? (
@@ -134,11 +140,55 @@ export function Appointments() {
           {/* List View */}
           {view === 'list' && (
             <div className="card overflow-hidden">
-              <div className="overflow-x-auto">
+              {/* Mobile card list for xs screens */}
+              <div className="sm:hidden divide-y divide-border-light">
+                {filtered.map((apt, i) => (
+                  <motion.div
+                    key={apt.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: i * 0.03 }}
+                    className="px-4 py-3.5 hover:bg-background/60 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                        <Avatar name={apt.patientName} size="sm" />
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-heading truncate">{apt.patientName}</p>
+                          <p className="text-xs text-muted truncate">{apt.doctorName}</p>
+                          <p className="text-xs text-muted">{apt.department}</p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                        <Badge status={apt.status} />
+                        <button
+                          className="p-1 text-muted hover:text-danger hover:bg-danger-light rounded-lg transition-colors"
+                          title="Delete"
+                          onClick={() => setDeleteConfirm(apt)}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 mt-2 text-xs text-muted">
+                      <span className="flex items-center gap-1">
+                        <Clock size={11} />{apt.date} · {apt.time}
+                      </span>
+                      {apt.room && <span className="flex items-center gap-1"><MapPin size={11} />{apt.room}</span>}
+                    </div>
+                  </motion.div>
+                ))}
+                {filtered.length === 0 && (
+                  <p className="text-center py-12 text-sm text-muted">No appointments found</p>
+                )}
+              </div>
+
+              {/* Desktop table */}
+              <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full min-w-[540px]">
                   <thead>
                     <tr className="border-b border-border bg-background/60">
-                      <th className="text-left px-6 py-3.5 table-header">Patient</th>
+                      <th className="text-left px-5 py-3.5 table-header">Patient</th>
                       <th className="text-left px-4 py-3.5 table-header">Doctor</th>
                       <th className="text-left px-4 py-3.5 table-header hidden md:table-cell">Date & Time</th>
                       <th className="text-left px-4 py-3.5 table-header hidden lg:table-cell">Type</th>
@@ -152,14 +202,14 @@ export function Appointments() {
                     {filtered.map((apt, i) => (
                       <motion.tr key={apt.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                         transition={{ delay: i * 0.03 }} className="hover:bg-background/60 transition-colors group">
-                        <td className="px-4 sm:px-6 py-4">
+                        <td className="px-4 sm:px-5 py-4">
                           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                             <Avatar name={apt.patientName} size="sm" />
                             <p className="text-sm font-semibold text-heading truncate">{apt.patientName}</p>
                           </div>
                         </td>
                         <td className="px-4 py-4">
-                          <p className="text-sm text-paragraph truncate max-w-[100px] sm:max-w-none">{apt.doctorName}</p>
+                          <p className="text-sm text-paragraph truncate max-w-[110px]">{apt.doctorName}</p>
                           <p className="text-xs text-muted">{apt.department}</p>
                         </td>
                         <td className="px-4 py-4 hidden md:table-cell">
@@ -201,26 +251,26 @@ export function Appointments() {
 
           {/* Timeline View */}
           {view === 'timeline' && (
-            <div className="card p-6">
-              <div className="flex items-center justify-between mb-6">
+            <div className="card p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-5">
                 <h2 className="section-title">Today — {getCurrentDateShort()}</h2>
                 <div className="flex items-center gap-2">
                   <button className="btn-icon"><ChevronLeft size={14} /></button>
                   <button className="btn-icon"><ChevronRight size={14} /></button>
                 </div>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 overflow-x-auto">
                 {HOURS.map(hour => {
                   const hourAppts = appointments.filter(a => a.time?.startsWith(hour.split(':')[0]));
                   return (
-                    <div key={hour} className="flex gap-4 min-h-[52px]">
-                      <div className="w-14 text-right flex-shrink-0 pt-1">
+                    <div key={hour} className="flex gap-3 sm:gap-4 min-h-[52px]">
+                      <div className="w-12 sm:w-14 text-right flex-shrink-0 pt-1">
                         <span className="text-xs font-medium text-muted">{hour}</span>
                       </div>
                       <div className="w-px bg-border-light flex-shrink-0" />
-                      <div className="flex-1 flex gap-2 pb-2">
+                      <div className="flex-1 flex gap-2 pb-2 flex-wrap">
                         {hourAppts.length > 0 ? hourAppts.map(apt => (
-                          <div key={apt.id} className={`flex-1 max-w-xs p-3 rounded-xl border-l-4 ${STATUS_COLORS[apt.status]}`}>
+                          <div key={apt.id} className={`flex-1 min-w-[200px] max-w-xs p-3 rounded-xl border-l-4 ${STATUS_COLORS[apt.status]}`}>
                             <p className="text-sm font-semibold text-heading truncate">{apt.patientName}</p>
                             <p className="text-xs text-muted">{apt.doctorName} · {apt.room || apt.department}</p>
                             <Badge status={apt.status} className="mt-1.5" />
@@ -238,28 +288,29 @@ export function Appointments() {
 
           {/* Week View */}
           {view === 'week' && (
-            <div className="card p-6">
-              <div className="flex items-center justify-between mb-6">
+            <div className="card p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-5">
                 <h2 className="section-title">Week of {getCurrentDateShort()}</h2>
                 <div className="flex items-center gap-2">
                   <button className="btn-icon"><ChevronLeft size={14} /></button>
                   <button className="btn-icon"><ChevronRight size={14} /></button>
                 </div>
               </div>
-              <div className="grid grid-cols-5 gap-3">
+              {/* Mobile: 2-col, desktop: 5-col */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
                 {getWeekDays().map((day, di) => {
                   const dayAppts = appointments.filter((_, i) => i % 5 === di).slice(0, 3);
                   return (
-                    <div key={day} className={`rounded-xl border p-3 ${di === 0 ? 'border-primary bg-primary-50' : 'border-border'}`}>
-                      <p className={`text-xs font-bold mb-3 ${di === 0 ? 'text-primary' : 'text-muted'}`}>{day}</p>
-                      <div className="space-y-2">
+                    <div key={day} className={`rounded-xl border p-2.5 sm:p-3 ${di === 0 ? 'border-primary bg-primary-50' : 'border-border'}`}>
+                      <p className={`text-xs font-bold mb-2 sm:mb-3 leading-tight ${di === 0 ? 'text-primary' : 'text-muted'}`}>{day}</p>
+                      <div className="space-y-1.5 sm:space-y-2">
                         {dayAppts.map(apt => (
                           <div key={apt.id} className={`p-2 rounded-lg border-l-2 ${STATUS_COLORS[apt.status]} text-xs`}>
                             <p className="font-semibold text-heading truncate">{apt.time}</p>
                             <p className="text-muted truncate">{apt.patientName}</p>
                           </div>
                         ))}
-                        {dayAppts.length === 0 && <p className="text-xs text-muted text-center py-4">No appointments</p>}
+                        {dayAppts.length === 0 && <p className="text-xs text-muted text-center py-3">No appointments</p>}
                       </div>
                     </div>
                   );
@@ -271,15 +322,15 @@ export function Appointments() {
       )}
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         {[
           { label: 'Pending', s: 'pending', color: 'text-warning-dark' },
           { label: 'In Progress', s: 'in-progress', color: 'text-primary' },
           { label: 'Completed', s: 'completed', color: 'text-success-dark' },
           { label: 'Cancelled', s: 'cancelled', color: 'text-danger' },
         ].map(({ label, s, color }) => (
-          <div key={label} className="card p-4">
-            <p className="text-xs font-semibold text-muted uppercase tracking-wider">{label}</p>
+          <div key={label} className="card p-3.5 sm:p-4">
+            <p className="text-xs font-semibold text-muted uppercase tracking-wider leading-snug">{label}</p>
             <p className={`text-2xl font-bold mt-1 ${color}`}>
               {appointments.filter(a => a.status === s).length}
             </p>
@@ -298,11 +349,11 @@ export function Appointments() {
         size="sm"
         footer={
           <>
-            <button className="btn-secondary" onClick={() => setDeleteConfirm(null)}>
+            <button className="btn-secondary text-xs sm:text-sm !py-1.5 !px-3" onClick={() => setDeleteConfirm(null)}>
               Cancel
             </button>
             <button
-              className="px-4 py-2 text-sm font-medium rounded-input bg-danger text-white hover:bg-danger-dark transition-colors"
+              className="px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-input bg-danger text-white hover:bg-danger-dark transition-colors"
               onClick={() => deleteConfirm && handleDeleteAppointment(deleteConfirm.id)}
             >
               Delete Appointment
@@ -310,7 +361,7 @@ export function Appointments() {
           </>
         }
       >
-        <p className="text-sm text-paragraph">
+        <p className="text-sm text-paragraph leading-relaxed">
           Are you sure you want to permanently delete appointment for <strong>{deleteConfirm?.patientName}</strong> with <strong>{deleteConfirm?.doctorName}</strong> on {deleteConfirm?.date}?
         </p>
       </Modal>

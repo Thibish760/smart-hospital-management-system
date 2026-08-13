@@ -82,7 +82,7 @@ export function Doctors() {
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
-          <button className="btn-secondary" onClick={handleExport}>
+          <button className="btn-secondary text-xs sm:text-sm !py-1.5 !px-3" onClick={handleExport}>
             <Download size={15} />
             Export Excel
           </button>
@@ -162,7 +162,7 @@ export function Doctors() {
         size="sm"
         footer={
           <>
-            <button className="btn-secondary" onClick={() => setDeleteConfirm(null)}>
+            <button className="btn-secondary text-xs sm:text-sm !py-1.5 !px-3" onClick={() => setDeleteConfirm(null)}>
               Cancel
             </button>
             <button

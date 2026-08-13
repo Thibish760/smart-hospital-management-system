@@ -97,11 +97,11 @@
   }
 
   .input-base {
-    @apply w-full px-3.5 py-2.5 text-sm font-medium text-heading bg-white border border-border rounded-input transition-all duration-150 placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50;
+    @apply w-full px-3 py-2 text-xs sm:text-sm font-medium text-heading bg-white border border-border rounded-input transition-all duration-150 placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50;
   }
 
   .badge {
-    @apply inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full;
+    @apply inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-full;
   }
 
   .table-header {
@@ -113,15 +113,15 @@
   }
 
   .sidebar-nav-item {
-    @apply flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-150 cursor-pointer;
+    @apply flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 cursor-pointer;
   }
 
   .page-title {
-    @apply text-xl sm:text-2xl font-bold text-heading tracking-tight;
+    @apply text-lg sm:text-2xl font-bold text-heading tracking-tight;
   }
 
   .section-title {
-    @apply text-base sm:text-lg font-semibold text-heading;
+    @apply text-sm sm:text-lg font-semibold text-heading;
   }
 }
 
@@ -798,6 +798,48 @@
   }
 }
 
+/* ════════════════════════════════════════
+   GLOBAL MOBILE RESPONSIVE OVERRIDES
+════════════════════════════════════════ */
+
+/* Use dvh for full-height on mobile browsers with collapsible chrome */
+@supports (height: 100dvh) {
+  html, .lp-root {
+    min-height: 100dvh;
+  }
+}
+
+/* Prevent horizontal overflow at the root level */
+html, body, #root {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* ── Login page small screen (< 390px) ── */
+@media (max-width: 390px) {
+  .lp-headline {
+    font-size: 1.7rem;
+    letter-spacing: -0.5px;
+  }
+  .lp-card {
+    padding: 18px 16px 16px;
+  }
+  .lp-right {
+    padding: 24px 12px 32px;
+  }
+  .lp-main {
+    padding: 24px 20px 20px;
+    gap: 16px;
+  }
+  .lp-header {
+    padding: 20px 20px 0;
+  }
+  .lp-footer-section {
+    padding: 16px 20px 20px;
+  }
+}
+
+/* ── Card on very small phones ── */
 @media (max-width: 480px) {
   .lp-card {
     border-radius: 12px;
@@ -810,5 +852,21 @@
 
   .lp-demo-list {
     gap: 3px;
+  }
+}
+
+/* ── Dashboard charts: tighter padding on mobile ── */
+@media (max-width: 640px) {
+  /* Reduce chart card padding to give graph more space */
+  .chart-card-inner {
+    padding: 12px;
+  }
+}
+
+/* ── Modal bottom-sheet on mobile ── */
+@media (max-width: 639px) {
+  /* Ensure modal backdrop covers system nav bars */
+  .fixed.inset-0.z-\[100\] {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }

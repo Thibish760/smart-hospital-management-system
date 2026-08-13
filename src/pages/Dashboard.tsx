@@ -42,19 +42,19 @@ export function Dashboard() {
   const recentPatients = patients.slice(0, 4);
 
   return (
-    <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-8">
+    <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-5 sm:space-y-6 lg:space-y-8">
       <ScheduleModal open={scheduleOpen} onClose={() => setScheduleOpen(false)} />
       {/* Page header with Role Badge */}
-      <motion.div variants={fadeSlide} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <h1 className="page-title capitalize">Welcome back, {displayName} 👋</h1>
-            <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-primary-light text-primary uppercase border border-primary/20">
+      <motion.div variants={fadeSlide} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            <h1 className="page-title capitalize text-lg sm:text-xl lg:text-2xl">Welcome back, {displayName} 👋</h1>
+            <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-primary-light text-primary uppercase border border-primary/20 flex-shrink-0">
               {userRole}
             </span>
           </div>
-          <p className="text-sm text-muted break-words">{
-            getCurrentFullDate()} — MediFlow Main Campus</p>
+          <p className="text-xs sm:text-sm text-muted break-words">
+            {getCurrentFullDate()} — MediFlow Main Campus</p>
         </div>
 
         <div className="flex gap-3 flex-wrap">
@@ -93,7 +93,7 @@ export function Dashboard() {
 
       {/* Role-tailored KPI Section */}
       {userRole === 'admin' && (
-        <motion.div variants={fadeSlide} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4 sm:gap-5">
+        <motion.div variants={fadeSlide} className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
           <KpiCard label="Total Patients" value={patients.length || 2614} change={6.2} changeType="increase"
             icon={<Users size={18} />} sparkline={kpiSparklines.patients} />
           <KpiCard label="Active Doctors" value={doctors.filter(d => d.status !== 'on-leave').length || 48} change={4.1} changeType="increase"
@@ -188,8 +188,8 @@ export function Dashboard() {
 
       {/* Analytics Charts — shown for Admin & Receptionist */}
       {(userRole === 'admin' || userRole === 'receptionist') && (
-        <motion.div variants={fadeSlide} className="grid grid-cols-1 xl:grid-cols-3 gap-5">
-          <div className="card p-6 xl:col-span-2">
+        <motion.div variants={fadeSlide} className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-5">
+          <div className="card p-4 sm:p-5 lg:p-6 xl:col-span-2">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
               <div>
                 <h2 className="section-title">Revenue Overview (INR ₹)</h2>
@@ -202,7 +202,7 @@ export function Dashboard() {
             </div>
             <RevenueChart />
           </div>
-          <div className="card p-6">
+          <div className="card p-4 sm:p-5 lg:p-6">
             <div className="mb-4">
               <h2 className="section-title">Departments</h2>
               <p className="text-sm text-muted mt-0.5">Patient distribution</p>
@@ -213,7 +213,7 @@ export function Dashboard() {
       )}
 
       {/* Appointments & Patient Lists */}
-      <motion.div variants={fadeSlide} className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+      <motion.div variants={fadeSlide} className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-5">
         {/* Appointments Table */}
         <div className="card">
           <div className="flex items-center justify-between px-6 py-4 border-b border-border">

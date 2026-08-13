@@ -147,13 +147,13 @@ export function ScheduleModal({ open, onClose, initialDoctorId, initialPatientId
       size="lg"
       footer={
         <>
-          <button className="btn-secondary" onClick={onClose} type="button">
+          <button className="btn-secondary text-xs sm:text-sm !py-1.5 !px-3" onClick={onClose} type="button">
             Cancel
           </button>
-          <button className="btn-primary" form="schedule-appointment-form" type="submit" disabled={saving}>
+          <button className="btn-primary text-xs sm:text-sm !py-1.5 !px-3" form="schedule-appointment-form" type="submit" disabled={saving}>
             {saving ? (
               <>
-                <Loader2 size={14} className="animate-spin" /> Scheduling…
+                <Loader2 size={13} className="animate-spin" /> Scheduling…
               </>
             ) : (
               'Confirm Schedule'
@@ -162,8 +162,8 @@ export function ScheduleModal({ open, onClose, initialDoctorId, initialPatientId
         </>
       }
     >
-      <form id="schedule-appointment-form" onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <form id="schedule-appointment-form" onSubmit={handleSubmit} className="space-y-2.5 sm:space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
           {/* Patient Selection */}
           <div className="space-y-1.5 sm:col-span-2">
             <label className="text-sm font-semibold text-heading">Select Patient *</label>

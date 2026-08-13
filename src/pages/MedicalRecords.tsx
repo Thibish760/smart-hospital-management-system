@@ -45,6 +45,7 @@ export function MedicalRecords() {
   const [addOpen, setAddOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [deleteConfirm, setDeleteConfirm] = useState<MedicalRecord | null>(null);
+  const [patientSidebarOpen, setPatientSidebarOpen] = useState(false);
 
   useEffect(() => {
     const unsubR = recordsService.subscribe((data) => {
@@ -135,20 +136,20 @@ export function MedicalRecords() {
   );
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-4 sm:space-y-5 lg:space-y-6 animate-fade-in">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
         <div>
           <h1 className="page-title">Medical Records</h1>
           <p className="text-sm text-muted mt-1">
             {loading ? 'Loading…' : `${records.length} records on file`}
           </p>
         </div>
-        <div className="flex items-center gap-3 flex-wrap">
-          <button className="btn-secondary" onClick={handleExport}>
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          <button className="btn-secondary text-xs sm:text-sm !py-1.5 !px-3" onClick={handleExport}>
             <Download size={15} />
             Export Excel
           </button>
-          <button className="btn-primary" onClick={() => setAddOpen(true)}>
+          <button className="btn-primary text-xs sm:text-sm !py-1.5 !px-3" onClick={() => setAddOpen(true)}>
             <Upload size={15} />
             Upload Record
           </button>
@@ -156,31 +157,45 @@ export function MedicalRecords() {
       </div>
 
       {/* Filters */}
-      <div className="card p-4 flex flex-col sm:flex-row gap-3">
+      <div className="card p-3.5 sm:p-4 flex flex-col gap-3">
         <div className="relative flex-1">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
           <input className="input-base pl-9" placeholder="Search records by title or patient name…"
             value={search} onChange={e => setSearch(e.target.value)} />
         </div>
-        <div className="flex gap-2 flex-wrap">
-          {RECORD_TYPES.map(t => (
-            <button key={t} onClick={() => setTypeFilter(t)}
-              className={`px-3.5 py-2 text-xs font-semibold rounded-input capitalize transition-all ${
-                typeFilter === t ? 'bg-primary text-white' : 'bg-background border border-border text-paragraph hover:border-gray-300'
-              }`}>
-              {t === 'all' ? 'All Types' : t.replace('-', ' ')}
-            </button>
-          ))}
+        {/* Type filter pills — horizontal scroll on mobile */}
+        <div className="overflow-x-auto no-scrollbar -mx-1 px-1">
+          <div className="flex gap-2 w-max">
+            {RECORD_TYPES.map(t => (
+              <button key={t} onClick={() => setTypeFilter(t)}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-input capitalize transition-all whitespace-nowrap flex-shrink-0 ${
+                  typeFilter === t ? 'bg-primary text-white' : 'bg-background border border-border text-paragraph hover:border-gray-300'
+                }`}>
+                {t === 'all' ? 'All Types' : t.replace('-', ' ')}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Left Sidebar: Patients List */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
+        {/* Patient filter — collapsible on mobile, sidebar on desktop */}
         <div className="card overflow-hidden h-fit">
-          <div className="px-5 py-4 border-b border-border bg-background/50">
+          {/* Mobile: collapsible header */}
+          <button
+            className="xl:cursor-default w-full flex items-center justify-between px-5 py-4 border-b border-border bg-background/50"
+            onClick={() => setPatientSidebarOpen(v => !v)}
+          >
             <h2 className="text-sm font-semibold text-heading">Filter by Patient</h2>
-          </div>
-          <div className="divide-y divide-border-light max-h-96 overflow-y-auto">
+            <span className="xl:hidden text-xs text-primary font-semibold">
+              {selectedPatient === 'all' ? 'All' : patients.find(p => p.id === selectedPatient)?.name || 'Select'}
+              <span className="ml-1 text-muted">{patientSidebarOpen ? '▲' : '▼'}</span>
+            </span>
+          </button>
+          <div className={`divide-y divide-border-light max-h-96 overflow-y-auto ${
+            // Always show on xl, toggle on mobile
+            patientSidebarOpen ? 'block' : 'hidden xl:block'
+          }`}>
             <button onClick={() => setSelectedPatient('all')}
               className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-background transition-colors ${selectedPatient === 'all' ? 'bg-primary-light/50 font-semibold' : ''}`}>
               <div className="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center text-primary text-xs font-bold">All</div>
@@ -212,7 +227,7 @@ export function MedicalRecords() {
         </div>
 
         {/* Records Timeline */}
-        <div className="xl:col-span-2 space-y-4">
+        <div className="xl:col-span-1 sm:col-span-2 space-y-4">
           {loading ? (
             <div className="flex items-center justify-center py-20 gap-3">
               <Loader2 size={20} className="animate-spin text-primary" />
@@ -228,18 +243,20 @@ export function MedicalRecords() {
             const colorClass = TYPE_COLORS[record.type] || 'text-muted bg-background';
             return (
               <motion.div key={record.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }} className="card p-5 hover:shadow-card-hover transition-all relative group">
-              <div className="flex items-start gap-3 sm:gap-4">
-                  <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClass}`}>
+                transition={{ delay: i * 0.05 }} className="card p-4 sm:p-5 hover:shadow-card-hover transition-all relative group">
+              <div className="flex items-start gap-3">
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClass}`}>
                     <Icon size={17} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2 sm:gap-4">
+                    <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-heading break-words">{record.title}</p>
-                        <p className="text-xs text-muted mt-0.5 break-words">{record.patientName} · {record.doctor} · {record.department}</p>
+                        <p className="text-sm font-semibold text-heading break-words leading-snug">{record.title}</p>
+                        <p className="text-xs text-muted mt-0.5 break-words leading-snug">
+                          {record.patientName} · {record.doctor} · {record.department}
+                        </p>
                       </div>
-                      <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
                         <div className="text-right">
                           <p className="text-xs font-medium text-muted whitespace-nowrap">{formatDate(record.date)}</p>
                           <Badge variant="default" className="mt-1 capitalize">{record.type?.replace('-', ' ')}</Badge>
@@ -281,10 +298,10 @@ export function MedicalRecords() {
         size="lg"
         footer={
           <>
-            <button className="btn-secondary" onClick={() => setAddOpen(false)} type="button">
+            <button className="btn-secondary text-xs sm:text-sm !py-1.5 !px-3" onClick={() => setAddOpen(false)} type="button">
               Cancel
             </button>
-            <button className="btn-primary" form="upload-record-form" type="submit" disabled={saving}>
+            <button className="btn-primary text-xs sm:text-sm !py-1.5 !px-3" form="upload-record-form" type="submit" disabled={saving}>
               {saving ? (
                 <>
                   <Loader2 size={14} className="animate-spin" /> Uploading…
@@ -413,7 +430,7 @@ export function MedicalRecords() {
         size="sm"
         footer={
           <>
-            <button className="btn-secondary" onClick={() => setDeleteConfirm(null)}>
+            <button className="btn-secondary text-xs sm:text-sm !py-1.5 !px-3" onClick={() => setDeleteConfirm(null)}>
               Cancel
             </button>
             <button

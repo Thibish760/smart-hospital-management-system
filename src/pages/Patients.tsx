@@ -293,15 +293,15 @@ export function Patients() {
         size="lg"
         footer={
           <>
-            <button className="btn-secondary" onClick={() => { setAddOpen(false); setForm(emptyForm); }}>Cancel</button>
-            <button className="btn-primary" form="add-patient-form" type="submit" disabled={saving}>
-              {saving ? <><Loader2 size={14} className="animate-spin" /> Saving…</> : 'Add Patient'}
+            <button className="btn-secondary text-xs sm:text-sm !py-1.5 !px-3" onClick={() => { setAddOpen(false); setForm(emptyForm); }}>Cancel</button>
+            <button className="btn-primary text-xs sm:text-sm !py-1.5 !px-3" form="add-patient-form" type="submit" disabled={saving}>
+              {saving ? <><Loader2 size={13} className="animate-spin" /> Saving…</> : 'Add Patient'}
             </button>
           </>
         }>
         <form id="add-patient-form" onSubmit={handleAddPatient}>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2 space-y-1.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+            <div className="col-span-1 sm:col-span-2 space-y-1.5">
               <label className="text-sm font-semibold text-heading">Full Name *</label>
               <input className="input-base" required placeholder="e.g. John Smith"
                 value={form.name} onChange={e => handleFormChange('name', e.target.value)} />
@@ -349,17 +349,17 @@ export function Patients() {
               <input className="input-base" placeholder="Dr. Name"
                 value={form.primaryDoctor} onChange={e => handleFormChange('primaryDoctor', e.target.value)} />
             </div>
-            <div className="col-span-2 space-y-1.5">
+            <div className="col-span-1 sm:col-span-2 space-y-1.5">
               <label className="text-sm font-semibold text-heading">Address</label>
               <input className="input-base" placeholder="123 Main Street, City, State"
                 value={form.address} onChange={e => handleFormChange('address', e.target.value)} />
             </div>
-            <div className="space-y-1.5">
+            <div className="col-span-1 sm:col-span-1 space-y-1.5">
               <label className="text-sm font-semibold text-heading">Allergies <span className="text-muted font-normal">(comma-separated)</span></label>
               <input className="input-base" placeholder="Penicillin, Sulfa"
                 value={form.allergies} onChange={e => handleFormChange('allergies', e.target.value)} />
             </div>
-            <div className="space-y-1.5">
+            <div className="col-span-1 sm:col-span-1 space-y-1.5">
               <label className="text-sm font-semibold text-heading">Conditions <span className="text-muted font-normal">(comma-separated)</span></label>
               <input className="input-base" placeholder="Hypertension, Diabetes"
                 value={form.conditions} onChange={e => handleFormChange('conditions', e.target.value)} />
@@ -373,8 +373,8 @@ export function Patients() {
         title="Delete Patient" subtitle="This action cannot be undone." size="sm"
         footer={
           <>
-            <button className="btn-secondary" onClick={() => setDeleteConfirm(null)}>Cancel</button>
-            <button className="btn-danger" onClick={() => deleteConfirm && handleDelete(deleteConfirm)} disabled={deleting}>
+            <button className="btn-secondary w-full sm:w-auto" onClick={() => setDeleteConfirm(null)}>Cancel</button>
+            <button className="btn-danger w-full sm:w-auto" onClick={() => deleteConfirm && handleDelete(deleteConfirm)} disabled={deleting}>
               {deleting ? <><Loader2 size={14} className="animate-spin" /> Deleting…</> : 'Delete Patient'}
             </button>
           </>

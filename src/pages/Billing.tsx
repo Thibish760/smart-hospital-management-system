@@ -136,8 +136,8 @@ export function Billing() {
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
-          <button className="btn-secondary" onClick={handleExport}><Download size={15} />Export</button>
-          <button className="btn-primary" onClick={() => setAddOpen(true)}><Plus size={15} />New Invoice</button>
+          <button className="btn-secondary text-xs sm:text-sm !py-1.5 !px-3" onClick={handleExport}><Download size={15} />Export</button>
+          <button className="btn-primary text-xs sm:text-sm !py-1.5 !px-3" onClick={() => setAddOpen(true)}><Plus size={15} />New Invoice</button>
         </div>
       </div>
 
@@ -277,10 +277,10 @@ export function Billing() {
         size="lg"
         footer={
           <>
-            <button className="btn-secondary" onClick={() => setAddOpen(false)} type="button">
+            <button className="btn-secondary text-xs sm:text-sm !py-1.5 !px-3" onClick={() => setAddOpen(false)} type="button">
               Cancel
             </button>
-            <button className="btn-primary" form="add-invoice-form" type="submit" disabled={saving}>
+            <button className="btn-primary text-xs sm:text-sm !py-1.5 !px-3" form="add-invoice-form" type="submit" disabled={saving}>
               {saving ? (
                 <>
                   <Loader2 size={14} className="animate-spin" /> Generating…
@@ -412,7 +412,7 @@ export function Billing() {
         size="sm"
         footer={
           <>
-            <button className="btn-secondary" onClick={() => setDeleteConfirm(null)}>
+            <button className="btn-secondary text-xs sm:text-sm !py-1.5 !px-3" onClick={() => setDeleteConfirm(null)}>
               Cancel
             </button>
             <button

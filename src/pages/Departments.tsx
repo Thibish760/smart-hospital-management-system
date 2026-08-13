@@ -81,11 +81,11 @@ export function Departments() {
           <p className="text-sm text-muted mt-1">{deptList.length} active departments</p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
-          <button className="btn-secondary" onClick={handleExport}>
+          <button className="btn-secondary text-xs sm:text-sm !py-1.5 !px-3" onClick={handleExport}>
             <Download size={15} />
             Export Excel
           </button>
-          <button className="btn-primary" onClick={() => setAddOpen(true)}>
+          <button className="btn-primary text-xs sm:text-sm !py-1.5 !px-3" onClick={() => setAddOpen(true)}>
             <Building2 size={15} />
             Add Department
           </button>
@@ -195,10 +195,10 @@ export function Departments() {
         size="md"
         footer={
           <>
-            <button className="btn-secondary" onClick={() => setAddOpen(false)} type="button">
+            <button className="btn-secondary text-xs sm:text-sm !py-1.5 !px-3" onClick={() => setAddOpen(false)} type="button">
               Cancel
             </button>
-            <button className="btn-primary" form="add-dept-form" type="submit" disabled={saving}>
+            <button className="btn-primary text-xs sm:text-sm !py-1.5 !px-3" form="add-dept-form" type="submit" disabled={saving}>
               {saving ? (
                 <>
                   <Loader2 size={14} className="animate-spin" /> Adding…
@@ -292,7 +292,7 @@ export function Departments() {
         size="sm"
         footer={
           <>
-            <button className="btn-secondary" onClick={() => setDeleteConfirm(null)}>
+            <button className="btn-secondary text-xs sm:text-sm !py-1.5 !px-3" onClick={() => setDeleteConfirm(null)}>
               Cancel
             </button>
             <button

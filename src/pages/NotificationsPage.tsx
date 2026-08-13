@@ -184,10 +184,10 @@ export function NotificationsPage() {
         size="md"
         footer={
           <>
-            <button className="btn-secondary" onClick={() => setAddOpen(false)} type="button">
+            <button className="btn-secondary text-xs sm:text-sm !py-1.5 !px-3" onClick={() => setAddOpen(false)} type="button">
               Cancel
             </button>
-            <button className="btn-primary" form="send-notif-form" type="submit" disabled={saving}>
+            <button className="btn-primary text-xs sm:text-sm !py-1.5 !px-3" form="send-notif-form" type="submit" disabled={saving}>
               {saving ? (
                 <>
                   <Loader2 size={14} className="animate-spin" /> Sending…
